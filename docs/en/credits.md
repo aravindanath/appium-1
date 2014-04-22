@@ -1,10 +1,4 @@
----
-title: Credits
-layout: default
----
-
-Credits
-=======
+# Credits
 
 ###  These are the projects that inspired us, or are depended upon to make Appium awesome.
 

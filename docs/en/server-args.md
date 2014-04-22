@@ -1,10 +1,4 @@
----
-title: Appium server arguments
-layout: default
----
-
-Appium server arguments
-==========
+# Appium server arguments
 
 Usage: `node . [flags]`
 

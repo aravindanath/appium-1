@@ -1,10 +1,4 @@
----
-title: Troubleshooting Appium
-layout: default
----
-
-Troubleshooting Appium
-======================
+# Troubleshooting Appium
 
 Here's what to do if you're experiencing problems, before you submit a ticket
 to github or write to the appium-discuss mailing list.
