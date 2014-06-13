@@ -18,7 +18,7 @@
 
 目前最好的測試方式請參照測試範例：
 
-[Node.js](https://github.com/appium/appium/tree/master/sample-code/examples/node) | [Python](https://github.com/appium/appium/tree/master/sample-code/examples/python) | [PHP](https://github.com/appium/appium/tree/master/sample-code/examples/php) | [Ruby](https://github.com/appium/appium/tree/master/sample-code/examples/ruby) | [Java](https://github.com/appium/appium/tree/master/sample-code/examples/java)
+[Node.js](/sample-code/examples/node) | [Python](/sample-code/examples/python) | [PHP](/sample-code/examples/php) | [Ruby](/sample-code/examples/ruby) | [Java](/sample-code/examples/java)
 
 基本上來說，首先先確定你啟動了Appium:
 
@@ -44,7 +44,7 @@
 
 ## 用Appium測試你的app (Android)
 
-首先，先確定你有一個而且必須是只能一個Android模擬器或著設備連接著。如果你輸入`adb devices`，你應該只看到一個設備連接著。這將是Appium所用來測試的設備。當然，要連接一個設備，你需要準備好一個Android AVD (參考 [系統設置](https://github.com/appium/appium/blob/master/docs/system-setup.md#android) 以了解更多). 如果Android SDK工具在你的路徑下，你可以簡單的執行:
+首先，先確定你有一個而且必須是只能一個Android模擬器或著設備連接著。如果你輸入`adb devices`，你應該只看到一個設備連接著。這將是Appium所用來測試的設備。當然，要連接一個設備，你需要準備好一個Android AVD (參考 [系統設置](system-setup.md) 以了解更多). 如果Android SDK工具在你的路徑下，你可以簡單的執行:
 
     emulator -avd <我的Avd名稱>
 

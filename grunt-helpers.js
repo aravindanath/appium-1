@@ -111,7 +111,7 @@ module.exports.runMochaTests = function (grunt, appName, testType, deviceType, c
     var file = mochaFiles.shift();
     if (typeof file !== "undefined") {
       var mochaProc = spawn('mocha', args.concat(file), {cwd: __dirname});
-      mochaProc.on("error", function (err) {
+      mochaProc.on("error", function () {
         grunt.fatal("Unable to spawn mocha process: mocha not installed?");
       });
       mochaProc.stdout.setEncoding('utf8');
@@ -376,7 +376,7 @@ var buildAndroidProj = function (grunt, projPath, target, cb) {
         var cmd = stdout.split('\r\n')[0].trim();
         grunt.log.write("Using " + cmdName + " found at " + cmd + "\n");
         var proc = spawn(cmd, [target], {cwd: projPath});
-        proc.on("error", function (err) {
+        proc.on("error", function () {
           grunt.fatal("Unable to spawn \"" + cmdName + "\"");
         });
         proc.stdout.setEncoding('utf8');
@@ -564,12 +564,13 @@ module.exports.installAndroidApp = function (grunt, appName, cb) {
 
 module.exports.generateServerDocs = function (grunt, cb) {
   var p = parser();
-  var docFile = path.resolve(__dirname, "docs/server-args.md");
-  var md = "Appium server arguments\n==========\n\n";
+  var docFile = path.resolve(__dirname, "docs/en/server-args.md");
+  var md = "# Appium server arguments\n\n";
   md += "Usage: `node . [flags]`\n\n";
-  md += "### Server flags\n";
+  md += "## Server flags\n";
   md += "All flags are optional, but some are required in conjunction with " +
         "certain others.\n\n";
+  md += "\n\n<expand_table>\n\n";
   md += "|Flag|Default|Description|Example|\n";
   md += "|----|-------|-----------|-------|\n";
   _.each(p.rawArgs, function (arg) {

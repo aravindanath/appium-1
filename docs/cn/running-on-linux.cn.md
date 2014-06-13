@@ -1,6 +1,5 @@
 # 在 Linux 上运行 Appium
 
-
 ### 限制
 
 如果你在 Linux 上使用 Appium， 那么你没法使用已经构建好的 '.app'，那是为 OS X 准备的。 另外由于 Appium 在测试 iOS 应用时 依赖 OS X 特有的库， 所以你也没有办法测试在 Linux 上测试 iOS 应用。
@@ -23,11 +22,11 @@
 
     node .
 
-你可以在 [server documentation](server-args.cn) 找到所有的命令行参数。
+你可以在 [server documentation](server-args.cn.md) 找到所有的命令行参数。
 
 
 ## 备注
 * There exists a hardware accelerated emulator for android, it has it's own
   limitations. For more information you can check out this
-  Android 有一些硬件加速的模拟器，这些模拟器有自己的限制。你可以在 [page](android-hax-emulator.cn) 找到更多的信息。
+  Android 有一些硬件加速的模拟器，这些模拟器有自己的限制。你可以在 [page](android-hax-emulator.cn.md) 找到更多的信息。
 * 确保你使用的 AVD 里面的 `config.ini` 有这条指令 `hw.battery=yes`。

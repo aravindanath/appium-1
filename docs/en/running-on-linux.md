@@ -17,7 +17,8 @@ you have an API Level 17 or greater API installed. You will also need Ant to
 build the bootstrap jar that Appium uses for testing Android.
 
 Finally, set `$ANDROID_HOME` to be your Android SDK path. If you unzipped the
-Android SDK to /usr/local/adt/, for example, you should add this to your shell startup:
+Android SDK to /usr/local/adt/, for example, you should add this to your
+shell startup:
 
     export ANDROID_HOME="/usr/local/adt/sdk"
 
@@ -32,11 +33,12 @@ line using node.js:
 
     node .
 
-See the [server documentation](server-args) for all the command line arguments.
+See the [server documentation](server-args.md) for all the command line
+arguments.
 
 ## Notes
 
 * There exists a hardware accelerated emulator for android, it has it's own
   limitations. For more information you can check out this
-  [page](android-hax-emulator).
+  [page](android-hax-emulator.md).
 * Make sure that `hw.battery=yes` in your AVD's `config.ini`.

@@ -4,10 +4,28 @@ var path = require('path');
 
 var env = {};
 
+env.IMPLICIT_WAIT_TIMEOUT = 5000;
+
 // local config
 env.APPIUM_HOST = process.env.APPIUM_HOST || '127.0.0.1';
 env.APPIUM_PORT = parseInt(process.env.APPIUM_PORT || 4723, 10);
 env.VERSION = process.env.VERSION;
+
+// travis
+env.TRAVIS_JOB_NUMBER = process.env.TRAVIS_JOB_NUMBER;
+env.TRAVIS_BUILD_NUMBER = process.env.TRAVIS_BUILD_NUMBER;
+env.TRAVIS_BUILD_DIR = process.env.TRAVIS_BUILD_DIR;
+
+// http
+env.HTTP_CONFIG = {};
+if (process.env.HTTP_TIMEOUT)
+  { env.HTTP_CONFIG.timeout = parseInt(process.env.HTTP_TIMEOUT, 10); }
+if (process.env.HTTP_RETRIES)
+  { env.HTTP_CONFIG.retries = parseInt(process.env.HTTP_RETRIES, 10); }
+if (process.env.HTTP_RETRY_DELAY)
+  { env.HTTP_CONFIG.retryDelay = parseInt(process.env.HTTP_RETRY_DELAY, 10); }
+
+env.DEBUG_CONNECTION = process.env.DEBUG_CONNECTION;
 
 // sauce
 env.SAUCE = process.env.SAUCE;
@@ -19,10 +37,12 @@ if (env.SAUCE) {
   }
   env.APPIUM_USERNAME = process.env.SAUCE_USERNAME;
   env.APPIUM_PASSWORD = process.env.SAUCE_ACCESS_KEY;
+  env.SAUCE_REST_ROOT = process.env.SAUCE_REST_ROOT;
 }
 
-env.LAUNCH_TIMEOUT = JSON.parse(process.env.LAUNCH_TIMEOUT || 60000);
 env.VERBOSE = process.env.VERBOSE;
+if (env.VERBOSE) console.log("process.env.LAUNCH_TIMEOUT -->", process.env.LAUNCH_TIMEOUT);
+env.LAUNCH_TIMEOUT = JSON.parse(process.env.LAUNCH_TIMEOUT || 60000);
 env.ISOLATED_TESTS = process.env.ISOLATED_TESTS;
 env.FAST_TESTS = !env.ISOLATED_TESTS;
 env.RESET_IOS = process.env.RESET_IOS || true;
@@ -40,9 +60,10 @@ function iphoneOrIpadSimulator(device, version) {
   switch (version) {
     case '6.1':
     case '7.0':
-      return isIpad ? 'iPad Simulator' : 'iPhone Simulator';
     case '7.1':
-      return isIpad ? 'iPad Retina' : 'iPhone Retina 4-inch';
+      return isIpad ? 'iPad Simulator' : 'iPhone Simulator';
+    // case '7.1':
+    //   return isIpad ? 'iPad Retina' : 'iPhone Retina 4-inch';
     default:
       throw new Error("invalid version");
   }
@@ -83,6 +104,7 @@ switch (env.DEVICE) {
     , platformName: 'Android'
     , deviceName: 'Android Emulator'
     };
+    if (env.SAUCE) env.CAPS.platformVersion = '4.3';
     break;
   case 'selendroid':
     env.CAPS = {
@@ -92,6 +114,7 @@ switch (env.DEVICE) {
     , deviceName: 'Android Emulator'
     , app: process.env.APP ? path.resolve(__dirname, "../../sample-code/apps/" + process.env.APP + "/bin/" + process.env.APP + "-debug.apk") : ''
     };
+    if (env.SAUCE) env.CAPS.platformVersion = '4.1';
     break;
   case 'firefox':
     env.CAPS = {
@@ -109,21 +132,11 @@ env.IOS6 = env.DEVICE.match(/ios6/i);
 env.IOS7 = env.DEVICE.match(/ios7/i);
 env.IOS71 = env.DEVICE.match(/ios71/i);
 env.ANDROID = env.DEVICE.match(/android/i);
+env.SELENDROID = env.DEVICE.match(/selendroid/i);
 
 // better timeout settings for 71
 env.LAUNCH_TIMEOUT =  process.env.LAUNCH_TIMEOUT ? JSON.parse(process.env.LAUNCH_TIMEOUT) :
   (env.IOS71 ? {"global": 60000, "afterSimLaunch": 10000} : 60000);
-
-// caps overide for sauce
-if (env.SAUCE) {
-  if (env.DEVICE === 'IOS') {
-    env.CAPS.version = "6.1";
-    env.CAPS.platform = "Mac 10.8";
-  } else if (env.CAPS.device === 'Android') {
-    env.CAPS.version = "4.2";
-    env.CAPS.platform = "LINUX";
-  }
-}
 
 env.CAPS.launchTimeout = env.LAUNCH_TIMEOUT;
 
@@ -141,12 +154,29 @@ if (env.VERSION) {
   env.CAPS.platformVersion = "7.0";
 }
 
-// app path root
+// max retry
+if (process.env.MAX_RETRY) env.MAX_RETRY = parseInt(process.env.MAX_RETRY, 10);
+
+//dev tarball
+env.TARBALL = process.env.TARBALL;
+
+// add the tarball to caps
+if (env.SAUCE && env.TARBALL) {
+  env.CAPS['appium-version'] = {
+    'appium-url': env.TARBALL,
+    //'npm-install': true,
+    'download-app': false,
+    'appium-startup-args': 'minimal'
+    //'appium-startup-args': '-m'
+  };
+  env.CAPS.tags=[env.DEVICE];
+}
 
 // rest enf points
-env.TEST_END_POINT = 'http://localhost:' + env.APPIUM_PORT + '/test/';
+env.LOCAL_APPIUM_PORT = env.SAUCE? 4443 : env.APPIUM_PORT;
+env.TEST_END_POINT = 'http://localhost:' + env.LOCAL_APPIUM_PORT + '/test/';
 env.GUINEA_TEST_END_POINT = env.TEST_END_POINT + 'guinea-pig';
-env.CHROME_TEST_END_POINT = 'http://10.0.2.2:' + env.APPIUM_PORT + '/test/';
+env.CHROME_TEST_END_POINT = 'http://10.0.2.2:' + env.LOCAL_APPIUM_PORT + '/test/';
 env.CHROME_GUINEA_TEST_END_POINT = env.CHROME_TEST_END_POINT + 'guinea-pig';
 
 module.exports = env;

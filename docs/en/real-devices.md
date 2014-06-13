@@ -5,7 +5,7 @@ Appium has support for real device testing.
 To get started on a real device, you will need the following:
 
 1. An Apple Developer ID and a valid Developer Account with a configured
-   distribution certificate and provisioning profile.
+distribution certificate and provisioning profile.
 2. An iPad or iPhone.
 3. The source code of your app.
 4. A Mac with XCode and the XCode Command Line Developer Tools
@@ -27,7 +27,7 @@ are no problems.
 Once your device and app are configured, you can run tests on that device by
 passing the -U flag to the server, and passing the bundle ID (if the app is
 installed on the device) or the path to the .ipa file via the `--app` flag or
-the `app` desired capability:
+ the `app` desired capability:
 
 ```
 node . -U <UDID> --app <bundle_id>
@@ -38,7 +38,7 @@ This will start Appium and have Appium use the device to test the app.
 ## Troubleshooting ideas
 
 0. Make sure UDID is correct by checking it in xcode organizer or itunes. It
-is a long string (20+ chars)
+   is a long string (20+ chars)
 0. Make sure that you can run your tests against simulator
 0. Double check that you can invoke your automation from instruments.
 0. Make sure instruments in closed already
