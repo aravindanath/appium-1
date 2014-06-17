@@ -1,10 +1,4 @@
----
-title: Appium grunt commands
-layout: default
----
-
-Appium grunt commands
-=============
+# Appium grunt commands
 
 [Grunt](http://gruntjs.com) is like make for Node.js! We use it to automate all
 kinds of appium dev tasks. Here's what you can do:
@@ -28,8 +22,7 @@ kinds of appium dev tasks. Here's what you can do:
 |grunt generateAppiumIo|Take Appium's README.md and turn it into HTML for getting-started.html of appium.io|
 |grunt setConfigVer:&lt;device&gt;|Say that &lt;device&gt; is configured for the version of Appium listed in package.json|
 
-Miscellaneous notes
---------
+## Miscellaneous notes
 
 By default, `grunt buildApp` builds apps using the iPhone 6.1 simulator SDK.
 You can overwrite the simulator by passing another SDK to grunt (to figure out

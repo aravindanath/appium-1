@@ -1,7 +1,4 @@
----
-title: Android coverage
-layout: default
----
+# Android Coverage
 
 Android coverage requires the emulator or a rooted device. Build your app
 using the instrument target, for example `$ ant instrument`
@@ -11,6 +8,10 @@ instrumentation class.
 
 ```ruby
 caps = { androidCoverage: 'com.example.pkg/com.example.pkg.instrumentation.MyInstrumentation' }
+```
+
+```python
+caps = { 'androidCoverage': 'com.example.pkg/com.example.pkg.instrumentation.MyInstrumentation' }
 ```
 
 Appium will start your app like this:
@@ -24,7 +25,9 @@ the coverage.ec file from the device.
 mobile :endCoverage, intent: 'com.example.pkg.END_EMMA', path: '/mnt/sdcard/coverage.ec'
 ```
 
---
+```python
+driver.end_test_coverage(intent='com.example.pkg.END_EMMA', path='/mnt/sdcard/coverage.ec')
+```
 
 `AndroidManifest.xml` defines the instrumentation and broadcast receiver.
 
@@ -33,7 +36,7 @@ mobile :endCoverage, intent: 'com.example.pkg.END_EMMA', path: '/mnt/sdcard/cove
         android:name="com.example.pkg.instrumentation.MyInstrumentation"
         android:targetPackage="com.example.pkg" >
     </instrumentation>
-    
+
     <!-- adb shell am broadcast -a com.example.pkg.END_EMMA -->
     <receiver android:name="com.example.pkg.instrumentation.EndEmmaBroadcast" >
        <intent-filter>
@@ -109,7 +112,7 @@ public class MyInstrumentation extends Instrumentation {
 }
 ```
 
-#### Reports
+## Coverage Reports
 
 `ant instrument` generates a `coverage.em` file. The `mobile :endCoverage`
 will download the coverage.ec file for that particular run. Note that you can

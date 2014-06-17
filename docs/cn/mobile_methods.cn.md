@@ -1,11 +1,6 @@
----
-layout: default
-title: 跨平台的移动测试方法
----
+# 跨平台的移动测试方法
 
-#### 跨平台的移动测试方法
-
-##### 移动测试的重置方法reset
+### 移动测试的重置方法reset
 
 reset方法会重置待测应用的状态
 
@@ -21,9 +16,9 @@ mobile :reset
 @driver.execute_script 'mobile: reset'
 ```
 
-#### Android下的移动测试方法
+## Android下的移动测试方法
 
-##### 移动测试的按键事件keyevent
+### 移动测试的按键事件keyevent
 
 [KeyEvent](http://developer.android.com/reference/android/view/KeyEvent.html) 提供了发送按键码(keycode)到Android的能力.
 
@@ -47,14 +42,14 @@ mobile :keyevent, keycode: 82
 @driver.execute_script 'mobile: keyevent', :keycode => 82
 ```
 
-#### 移动测试的Find方法
+### 移动测试的Find方法
 
 Java
 
 
 Java
 
-[MobileFindJavaTest.java](https://github.com/appium/appium/blob/master/sample-code/examples/java/junit/src/test/java/com/saucelabs/appium/MobileFindJavaTest.java)
+[MobileFindJavaTest.java](/sample-code/examples/java/junit/src/test/java/com/saucelabs/appium/MobileFindJavaTest.java)
 
 Ruby + [appium_lib gem](https://github.com/appium/ruby_lib)
 
