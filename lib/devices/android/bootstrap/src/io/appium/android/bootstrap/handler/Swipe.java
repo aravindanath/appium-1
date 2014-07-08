@@ -1,20 +1,13 @@
 package io.appium.android.bootstrap.handler;
 
-import io.appium.android.bootstrap.AndroidCommand;
-import io.appium.android.bootstrap.AndroidCommandResult;
-import io.appium.android.bootstrap.AndroidElement;
-import io.appium.android.bootstrap.CommandHandler;
-import io.appium.android.bootstrap.Logger;
-import io.appium.android.bootstrap.exceptions.ElementNotInHashException;
-import io.appium.android.bootstrap.exceptions.InvalidCoordinatesException;
-import io.appium.android.bootstrap.utils.Point;
-
-import java.util.Hashtable;
-
-import org.json.JSONException;
-
 import com.android.uiautomator.core.UiDevice;
 import com.android.uiautomator.core.UiObjectNotFoundException;
+import io.appium.android.bootstrap.*;
+import io.appium.android.bootstrap.exceptions.InvalidCoordinatesException;
+import io.appium.android.bootstrap.utils.Point;
+import org.json.JSONException;
+
+import java.util.Hashtable;
 
 /**
  * This handler is used to swipe.
@@ -49,8 +42,6 @@ public class Swipe extends CommandHandler {
         final AndroidElement el = command.getElement();
         absStartPos = el.getAbsolutePosition(start);
         absEndPos = el.getAbsolutePosition(end, false);
-      } catch (final ElementNotInHashException e) {
-        return getErrorResult(e.getMessage());
       } catch (final UiObjectNotFoundException e) {
         return getErrorResult(e.getMessage());
       } catch (final InvalidCoordinatesException e) {
@@ -60,14 +51,14 @@ public class Swipe extends CommandHandler {
       }
     } else {
       try {
-        absStartPos = GetDeviceAbsPos(start);
-        absEndPos = GetDeviceAbsPos(end);
+        absStartPos = getDeviceAbsPos(start);
+        absEndPos = getDeviceAbsPos(end);
       } catch (final InvalidCoordinatesException e) {
         return getErrorResult(e.getMessage());
       }
     }
 
-    Logger.info("Swiping from " + absStartPos.toString() + " to "
+    Logger.debug("Swiping from " + absStartPos.toString() + " to "
         + absEndPos.toString() + " with steps: " + steps.toString());
     final boolean rv = device.swipe(absStartPos.x.intValue(),
         absStartPos.y.intValue(), absEndPos.x.intValue(),

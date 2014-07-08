@@ -1,26 +1,31 @@
 #!/bin/sh
 set -e
 
-echo "Starting to compress and upload appium."
+if [[ "${TARBALL}" == '' ]]; then
+    echo Please set the TARBALL env variable!
+    exit 1
+fi
 
-BZ2_FILE=appium-ci-${TRAVIS_BRANCH}-${TRAVIS_JOB_NUMBER}-${TRAVIS_COMMIT:0:10}.tar.bz2
+echo "Starting to compress and upload appium to ${TARBALL}."
+
 UPLOAD_INFO_FILE=/tmp/build-upload-info.json
 
 # zipping/uploading
 tar \
     cfj - \
+    -L \
     --exclude=.git \
     --exclude=submodules . | \
 curl \
     -k \
     --progress-bar \
     -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
-    -X POST "${SAUCE_REST_ROOT}/storage/${SAUCE_USERNAME}/${BZ2_FILE}?overwrite=true" \
+    -X POST "${SAUCE_REST_ROOT}/storage/${SAUCE_USERNAME}/${TARBALL}?overwrite=true" \
     -H "Content-Type: application/octet-stream" \
     --data-binary @- \
     -o $UPLOAD_INFO_FILE
 
 # checking/printing result file
-node ci/tools/build-upload-tool.js $UPLOAD_INFO_FILE
+ci/tools/build-upload-tool.js $UPLOAD_INFO_FILE
 
 echo "Finished to compress and upload appium."

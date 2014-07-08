@@ -12,6 +12,8 @@ var env = require('../../../helpers/env')
   , should = chai.should()
   , spawn = require('child_process').spawn
   , _ = require('underscore')
+  , ChaiAsserter = require('../../../helpers/asserter.js').ChaiAsserter
+  , getAppPath = require('../../../helpers/app').getAppPath
   , androidReset = require('../../../helpers/reset').androidReset;
 
 describe("apidemo - basic @skip-ci", function () {
@@ -90,11 +92,17 @@ describe("apidemo - basic @skip-ci", function () {
       }).nodeify(done);
     });
 
-    it('should be able to detect if app is installed', function (done) {
+    it('should be able to install/remove app and detect its status', function (done) {
       driver
         .isAppInstalled('foo')
           .should.eventually.equal(false)
-        .isAppInstalled('com.example.android.apis')
+        .isAppInstalled('io.appium.android.apis')
+          .should.eventually.equal(true)
+        .removeApp('io.appium.android.apis')
+        .isAppInstalled('io.appium.android.apis')
+          .should.eventually.equal(false)
+        .installApp(getAppPath('ApiDemos'))
+        .isAppInstalled('io.appium.android.apis')
           .should.eventually.equal(true)
         .nodeify(done);
     });
@@ -111,6 +119,16 @@ describe("apidemo - basic @skip-ci", function () {
           .should.eventually.include("ApiDemos")
         .nodeify(done);
     });
+    it("should get app strings", function (done) {
+      driver
+        .getAppStrings()
+        .then(function (strings) {
+          _.size(strings).should.be.above(1);
+          strings.activity_sample_code.should.eql("API Demos");
+        })
+        .nodeify(done);
+    });
+
   });
 
   describe('with fastReset', function () {
@@ -144,7 +162,7 @@ describe("apidemo - basic @skip-ci", function () {
     var title = getTitle(this);
     after(function () { return session.tearDown(this.currentTest.state === 'passed'); });
     it('should still find activity', function (done) {
-      session = initSession(_.defaults({appActivity: 'com.example.android.apis.ApiDemos'}, desired));
+      session = initSession(_.defaults({appActivity: 'io.appium.android.apis.ApiDemos'}, desired));
       session.setUp(title).nodeify(done);
     });
   });
@@ -177,11 +195,10 @@ describe("apidemo - basic @skip-ci", function () {
         try3Times(function () {
           return session.setUp(title)
             .catch(function (err) { throw err.data; })
-            .should.be.rejectedWith(/Error locating the app/);
+            .should.eventually.be.rejectedWith(/Error locating the app/);
         }).nodeify(done);
       });
     });
-
   });
 
   describe('pre-existing uiautomator session', function () {
@@ -215,6 +232,22 @@ describe("apidemo - basic @skip-ci", function () {
           .nodeify(done);
       });
     });
+
+    describe('launching activity with custom intent parameter category', function () {
+      var driver;
+      var caps = _.clone(desired);
+      caps.appActivity = "io.appium.android.apis.app.HelloWorld";
+      caps.intentCategory = "appium.android.intent.category.SAMPLE_CODE";
+      setup(this, caps)
+       .then(function (d) { driver = d; });
+
+      it('should launch activity with intent category', function (done) {
+        driver.getCurrentActivity()
+              .should.eventually.include("HelloWorld")
+              .nodeify(done);
+      });
+    });
+
   });
 
   describe('appium android', function () {
@@ -225,7 +258,7 @@ describe("apidemo - basic @skip-ci", function () {
 
     if (env.FAST_TESTS) {
       beforeEach(function (done) {
-        androidReset('com.example.android.apis', '.ApiDemos').nodeify(done);
+        androidReset('io.appium.android.apis', '.ApiDemos').nodeify(done);
       });
     }
 
@@ -247,6 +280,71 @@ describe("apidemo - basic @skip-ci", function () {
       var appUrl = 'http://appium.s3.amazonaws.com/ApiDemos-debug.apk';
       session = initSession(_.defaults({'app': appUrl}, desired));
       session.setUp(title + "- zip url").nodeify(done);
+    });
+
+    it('should load an app via package', function (done) {
+      var caps = _.clone(desired);
+      caps.app = 'io.appium.android.apis';
+      caps.appActivity = '.ApiDemos';
+      session = initSession(caps, desired);
+      session.setUp(title + "- package").nodeify(done);
+    });
+
+  });
+
+  describe('appium android', function () {
+    this.timeout(env.MOCHA_INIT_TIMEOUT);
+
+    var session;
+    var title = getTitle(this);
+
+    before(function (done) {
+      var adb = new ADB({});
+      adb.uninstallApk("io.appium.android.apis", done);
+    });
+
+    afterEach(function () { return session.tearDown(this.currentTest.state === 'passed'); });
+
+    it('should be able to start session without launching app', function (done) {
+      var appPath = path.resolve(desired.app);
+      var caps = _.defaults({'app': appPath, 'autoLaunch': false}, desired);
+      session = initSession(caps, desired);
+      var driver = session.setUp(title + "- autoLaunch");
+      var activityToBeBlank = new ChaiAsserter(function (driver) {
+        return driver
+          .getCurrentActivity()
+          .should.eventually.not.include(".ApiDemos");
+      });
+      driver
+        .waitFor(activityToBeBlank, 10000, 700)
+        .launchApp()
+        .getCurrentActivity()
+          .should.eventually.include(".ApiDemos")
+        .nodeify(done);
+    });
+
+    it('should be able to start session without installing app', function (done) {
+      var appPath = path.resolve(desired.app);
+      var appPkg = "io.appium.android.apis";
+      var caps = _.defaults({
+        app: appPkg,
+        autoLaunch: false,
+        appActivity: ".ApiDemos"
+      }, desired);
+      session = initSession(caps, desired);
+      var driver = session.setUp(title + "- autoLaunch");
+      var activityToBeBlank = new ChaiAsserter(function (driver) {
+        return driver
+          .getCurrentActivity()
+          .should.eventually.not.include(".ApiDemos");
+      });
+      driver
+        .waitFor(activityToBeBlank, 10000, 700)
+        .installApp(appPath)
+        .launchApp()
+        .getCurrentActivity()
+          .should.eventually.include(".ApiDemos")
+        .nodeify(done);
     });
 
   });

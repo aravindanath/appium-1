@@ -17,8 +17,8 @@ mock.noop(IOS.prototype, 'configureApp');
 describe('IOS', function () {
   // we'd like to test ios.proxy; mock instruments
   var inst = new IOS({});
-  inst.instruments = {};
-  inst.instruments.sendCommand = function (cmd, cb) {
+  inst.commandProxy = {};
+  inst.commandProxy.sendCommand = function (cmd, cb) {
     // let's pretend we've got some latency here.
     var to = Math.round(Math.random() * 10);
     setTimeout(function () { cb([cmd, to]); }, to);
@@ -67,7 +67,7 @@ describe('Appium', function () {
       var loop = function (num) {
         if (num > 9)
           return;
-        appium.start({app: "/path/to/fake.app", device: "iPhone"}, function (err) {
+        appium.start({app: "/path/to/fake.app", deviceName: "iPhone", platformName: "iOS"}, function (err) {
           var n = num;
           if (n === 0) {
             should.not.exist(err);
@@ -95,9 +95,9 @@ describe('Appium with clobber', function () {
   appium.registerConfig({ios: true});
 
   describe('#start', function () {
-    return it('should clobber existing sessions', function (done) {
+    it('should clobber existing sessions', function (done) {
       var numSessions = 9
-        , dc = {app: "/path/to/fake.app", device: "iPhone"};
+        , dc = {app: "/path/to/fake.app", deviceName: "iPhone", platformName: 'iOS'};
       var loop = function (num) {
         if (num > numSessions) return;
         appium.start(dc, function () {
@@ -117,6 +117,19 @@ describe('Appium with clobber', function () {
       };
 
       loop(0);
+    });
+
+    it('should retain sessionOverride arg across sessions', function (done) {
+      var dc = {app: "/path/to/fake.app"};
+      appium.start(dc, function () {
+        appium.sessionOverride.should.eql(true);
+        appium.cleanupSession(null, function () {
+          appium.start(dc, function () {
+            appium.sessionOverride.should.eql(true);
+            done();
+          });
+        });
+      });
     });
   });
 });

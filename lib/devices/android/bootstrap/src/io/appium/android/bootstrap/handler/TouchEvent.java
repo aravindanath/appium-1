@@ -1,31 +1,19 @@
 package io.appium.android.bootstrap.handler;
 
-import io.appium.android.bootstrap.AndroidCommand;
-import io.appium.android.bootstrap.AndroidCommandResult;
-import io.appium.android.bootstrap.AndroidElement;
-import io.appium.android.bootstrap.CommandHandler;
-import io.appium.android.bootstrap.Logger;
-import io.appium.android.bootstrap.WDStatus;
-import io.appium.android.bootstrap.exceptions.ElementNotInHashException;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Hashtable;
-
+import android.graphics.Rect;
+import com.android.uiautomator.core.UiObjectNotFoundException;
+import io.appium.android.bootstrap.*;
 import org.json.JSONException;
 
-import android.graphics.Rect;
-
-import com.android.uiautomator.core.UiDevice;
-import com.android.uiautomator.core.UiObjectNotFoundException;
+import java.util.ArrayList;
+import java.util.Hashtable;
 
 /**
  * This handler is and abstract class that contains all the common code for
  * touch event handlers.
- *
+ * 
  */
-public abstract class TouchEvent extends TouchableEvent {
+public abstract class TouchEvent extends CommandHandler {
   protected AndroidElement            el;
 
   protected int                       clickX;
@@ -37,7 +25,7 @@ public abstract class TouchEvent extends TouchableEvent {
   protected boolean                   isElement;
 
   /**
-   *
+   * 
    * @param command
    *          The {@link AndroidCommand}
    * @return {@link AndroidCommandResult}
@@ -92,8 +80,6 @@ public abstract class TouchEvent extends TouchableEvent {
       }
 
     } catch (final UiObjectNotFoundException e) {
-      return new AndroidCommandResult(WDStatus.NO_SUCH_ELEMENT, e.getMessage());
-    } catch (final ElementNotInHashException e) {
       return new AndroidCommandResult(WDStatus.NO_SUCH_ELEMENT, e.getMessage());
     } catch (final Exception e) {
       return getErrorResult(e.getMessage());

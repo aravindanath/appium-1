@@ -12,7 +12,7 @@ describe("common - jsonwp @skip-ci @skip-ios6", function () {
     it('should get 404 with text/plain body', function (done) {
       request.get(serverUrl + '/a/bad/path', function (err, res, body) {
         should.not.exist(err);
-        res.headers['content-type'].should.equal('text/plain');
+        res.headers['content-type'].should.equal('text/plain; charset=utf-8');
         res.statusCode.should.equal(404);
         body.should.be.ok;
         done();
@@ -30,7 +30,7 @@ describe("common - jsonwp @skip-ci @skip-ios6", function () {
   });
   describe('to a not-yet-implemented url', function () {
     it('should respond with 501 Not Implemented', function (done) {
-      var url = serverHub + '/fakesessid/ime/deactivate';
+      var url = serverHub + '/fakesessid/local_storage';
       request.post(url, function (err, res, body) {
         should.not.exist(err);
         res.statusCode.should.equal(501);

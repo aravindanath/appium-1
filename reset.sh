@@ -8,6 +8,7 @@ set -e
 should_reset_android=false
 should_reset_ios=false
 should_reset_selendroid=false
+should_reset_selendroid_quick=false
 should_reset_gappium=false
 should_reset_firefoxos=false
 should_reset_realsafari=false
@@ -18,6 +19,8 @@ prod_deps=false
 appium_home=$(pwd)
 reset_successful=false
 has_reset_unlock_apk=false
+has_reset_ime_apk=false
+has_reset_settings_apk=false
 apidemos_reset=false
 toggletest_reset=false
 hardcore=false
@@ -41,6 +44,7 @@ do
         "--code-sign") code_sign_identity=$2;;
         "--profile") provisioning_profile=$2;;
         "--selendroid") should_reset_selendroid=true;;
+        "--selendroid-quick") should_reset_selendroid_quick=true;;
         "--firefoxos") should_reset_firefoxos=true;;
         "--gappium") should_reset_gappium=true;;
         "--dev") include_dev=true;;
@@ -62,7 +66,8 @@ do
     fi
 done
 
-if ! $should_reset_android && ! $should_reset_ios && ! $should_reset_selendroid && ! $should_reset_gappium && ! $should_reset_firefoxos ; then
+if ! $should_reset_android && ! $should_reset_ios && ! $should_reset_selendroid \
+    && ! $should_reset_gappium && ! $should_reset_firefoxos && ! $should_reset_selendroid_quick ; then
     should_reset_android=true
     should_reset_ios=true
     should_reset_selendroid=true
@@ -151,16 +156,6 @@ reset_ios() {
     echo "* Installing ios-sim-locale"
     run_cmd rm -f build/ios-sim-locale
     run_cmd cp assets/ios-sim-locale build/ios-sim-locale
-    echo "* Cloning/updating ForceQuitUnresponsiveApps"
-    run_cmd git submodule update --init submodules/ForceQuitUnresponsiveApps
-    echo "* Building ForceQuitUnresponsiveApps"
-    run_cmd pushd submodules/ForceQuitUnresponsiveApps
-    run_cmd ./build_force_quit.sh
-    run_cmd popd
-    echo "* Moving ForceQuitUnresponsiveApps into build/force_quit"
-    run_cmd rm -rf build/force_quit
-    run_cmd mkdir build/force_quit
-    run_cmd cp -R submodules/ForceQuitUnresponsiveApps/bin/* build/force_quit
     echo "* Cloning/updating udidetect"
     run_cmd git submodule update --init submodules/udidetect
     echo "* Building udidetect"
@@ -187,6 +182,8 @@ reset_ios() {
             run_cmd ./bin/npmlink.sh -l appium-instruments
             echo "* Cloning/npm linking appium-uiauto"
             run_cmd ./bin/npmlink.sh -l appium-uiauto
+            echo "* Cloning/npm linking appium-adb"
+            run_cmd ./bin/npmlink.sh -l appium-adb
         fi
         if $ios7_active ; then
             if $hardcore ; then
@@ -277,7 +274,7 @@ reset_apidemos() {
     echo "* Configuring and cleaning/building Android test app: ApiDemos"
     run_cmd "$grunt" configAndroidApp:ApiDemos
     run_cmd "$grunt" buildAndroidApp:ApiDemos
-    uninstall_android_app com.example.android.apis
+    uninstall_android_app io.appium.android.apis
     apidemos_reset=true
 }
 
@@ -320,6 +317,38 @@ reset_unlock_apk() {
     fi
 }
 
+reset_unicode_ime() {
+    if ! $has_reset_ime_apk; then
+        run_cmd rm -rf build/unicode_ime_apk
+        run_cmd mkdir -p build/unicode_ime_apk
+        echo "* Building UnicodeIME.apk"
+        ime_base="submodules/io.appium.android.ime"
+        run_cmd git submodule update --init $ime_base
+        run_cmd pushd $ime_base
+        run_cmd ant clean && run_cmd ant debug
+        run_cmd popd
+        run_cmd cp $ime_base/bin/UnicodeIME-debug.apk build/unicode_ime_apk
+        uninstall_android_app "io.appium.android.ime"
+        has_reset_ime_apk=true
+    fi
+}
+
+reset_settings_apk() {
+    if ! $has_reset_settings_apk; then
+        run_cmd rm -rf build/settings_apk
+        run_cmd mkdir -p build/settings_apk
+        echo "* Building Settings.apk"
+        settings_base="submodules/io.appium.settings"
+        run_cmd git submodule update --init $settings_base
+        run_cmd pushd $settings_base
+        run_cmd ant clean && run_cmd ant debug
+        run_cmd popd
+        run_cmd cp $settings_base/bin/settings_apk-debug.apk build/settings_apk
+        uninstall_android_app "io.appium.settings"
+        has_reset_settings_apk=true
+    fi
+}
+
 reset_android() {
     echo "RESETTING ANDROID"
     require_java
@@ -329,6 +358,8 @@ reset_android() {
     echo "* Building Android bootstrap"
     run_cmd "$grunt" buildAndroidBootstrap
     reset_unlock_apk
+    reset_unicode_ime
+    reset_settings_apk
     if $include_dev ; then
         reset_apidemos
         reset_toggle_test
@@ -341,6 +372,51 @@ reset_android() {
 
 require_java() {
   [ '${JAVA_HOME:?"Warning: Make sure JAVA_HOME is set properly for Java builds."}' ]
+}
+
+reset_selendroid_quick() {
+    echo "RESETTING SELENDROID (QUICK)"
+    run_cmd rm -rf "${appium_home}/build/selendroid"
+    run_cmd mkdir -p "${appium_home}/build/selendroid"
+    run_cmd rm -rf /tmp/appium/selendroid
+    run_cmd mkdir -p /tmp/appium/selendroid
+    run_cmd pushd /tmp/appium/selendroid
+    echo "* Downloading metatata"
+    run_cmd wget http://search.maven.org/remotecontent?filepath=io/selendroid/selendroid-standalone/maven-metadata.xml -O maven-metadata.xml
+    selendroid_version=$(grep latest maven-metadata.xml | sed 's/ *<\/*latest\> *//g')
+    echo "* Selendroid version is ${selendroid_version}"
+    echo "* Downloading selendroid server"
+    run_cmd wget https://github.com/selendroid/selendroid/releases/download/${selendroid_version}/selendroid-standalone-${selendroid_version}-with-dependencies.jar
+    run_cmd jar xf selendroid-standalone-${selendroid_version}-with-dependencies.jar AndroidManifest.xml  prebuild/selendroid-server-${selendroid_version}.apk
+    run_cmd cp /tmp/appium/selendroid/prebuild/selendroid-server-${selendroid_version}.apk "${appium_home}/build/selendroid/selendroid.apk"
+    run_cmd cp /tmp/appium/selendroid/AndroidManifest.xml "${appium_home}/build/selendroid/AndroidManifest.xml"
+    run_cmd popd
+    run_cmd "$grunt" fixSelendroidAndroidManifest
+    if $include_dev ; then
+        if ! $apidemos_reset; then
+            reset_apidemos
+            uninstall_android_app io.appium.android.apis.selendroid
+        fi
+        if ! $toggletest_reset; then
+            reset_toggle_test
+            uninstall_android_app io.appium.toggletest.selendroid
+        fi
+        run_cmd pushd /tmp/appium/selendroid
+        echo "* Downloading selendroid test app"
+        run_cmd wget http://search.maven.org/remotecontent?filepath=io/selendroid/selendroid-test-app/${selendroid_version}/selendroid-test-app-${selendroid_version}.apk -O selendroid-test-app-${selendroid_version}.apk
+        run_cmd popd
+        run_cmd rm -rf "${appium_home}/sample-code/apps/selendroid-test-app.apk"
+        cp /tmp/appium/selendroid/selendroid-test-app-${selendroid_version}.apk "${appium_home}/sample-code/apps/selendroid-test-app.apk"
+        echo "* Attempting to uninstall app"
+        # uninstalling app
+        uninstall_android_app io.selendroid.testapp.selendroid
+        uninstall_android_app io.selendroid.testapp
+        # keep older versions of package around to clean up
+        uninstall_android_app org.openqa.selendroid.testapp.selendroid
+        uninstall_android_app org.openqa.selendroid.testapp
+    fi
+    echo "* Setting Selendroid config to Appium's version"
+    run_cmd "$grunt" setConfigVer:selendroid
 }
 
 reset_selendroid() {
@@ -358,14 +434,15 @@ reset_selendroid() {
     run_cmd git reset --hard
     run_cmd popd
     reset_unlock_apk
+    reset_unicode_ime
     if $include_dev ; then
         if ! $apidemos_reset; then
             reset_apidemos
-            uninstall_android_app com.example.android.apis.selendroid
+            uninstall_android_app io.appium.android.apis.selendroid
         fi
         if ! $toggletest_reset; then
             reset_toggle_test
-            uninstall_android_app com.example.toggletest.selendroid
+            uninstall_android_app io.appium.toggletest.selendroid
         fi
         echo "* Linking selendroid test app"
         run_cmd rm -rf "$appium_home"/sample-code/apps/selendroid-test-app.apk
@@ -403,6 +480,12 @@ reset_gappium() {
 
 reset_chromedriver() {
     echo "RESETTING CHROMEDRIVER"
+    machine=$(run_cmd_output uname -m)
+    if [ "$machine" == "i686" ]; then
+        machine="32"
+    else
+        machine="64"
+    fi
     if [ -d "$appium_home"/build/chromedriver ]; then
         echo "* Clearing old ChromeDriver(s)"
         run_cmd rm -rf "$appium_home"/build/chromedriver/*
@@ -423,7 +506,7 @@ reset_chromedriver() {
             run_cmd mkdir "$appium_home"/build/chromedriver/mac
         else
             platform="linux"
-            chromedriver_file="chromedriver_linux32.zip"
+            chromedriver_file="chromedriver_linux$machine.zip"
             run_cmd mkdir "$appium_home"/build/chromedriver/linux
         fi
         install_chromedriver $platform $chromedriver_version $chromedriver_file
@@ -434,7 +517,7 @@ reset_chromedriver() {
         run_cmd mkdir "$appium_home"/build/chromedriver/windows
 
         install_chromedriver "mac" $chromedriver_version "chromedriver_mac32.zip"
-        install_chromedriver "linux" $chromedriver_version "chromedriver_linux32.zip"
+        install_chromedriver "linux" $chromedriver_version "chromedriver_linux$machine.zip"
         install_chromedriver "windows" $chromedriver_version "chromedriver_win32.zip"
     fi
 }
@@ -488,6 +571,9 @@ main() {
     fi
     if $should_reset_selendroid ; then
         reset_selendroid
+    fi
+    if $should_reset_selendroid_quick ; then
+        reset_selendroid_quick
     fi
     if $should_reset_firefoxos ; then
         reset_firefoxos

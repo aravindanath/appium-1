@@ -1,11 +1,11 @@
 package io.appium.android.bootstrap;
 
-import java.util.ArrayList;
-
+import com.android.uiautomator.core.UiSelector;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.android.uiautomator.core.UiSelector;
+import java.util.ArrayList;
+import java.util.List;
 
 // Constants from
 // https://android.googlesource.com/platform/frameworks/testing/+/master/uiautomator/library/core-src/com/android/uiautomator/core/UiSelector.java
@@ -85,13 +85,15 @@ public class Dynamic {
       case GET_NAME:
         value = result.getStringAttribute("name");
         break;
+      default:
+        break;
     }
 
     return value;
   }
 
-  public static ArrayList<String> finalize(
-      final ArrayList<AndroidElement> elements, final int finalizer)
+  public static List<String> finalize(
+      final List<AndroidElement> elements, final int finalizer)
       throws Exception {
     final ArrayList<String> results = new ArrayList<String>();
     for (final AndroidElement e : elements) {
@@ -201,6 +203,8 @@ public class Dynamic {
         break;
       case SELECTOR_RESOURCE_ID_REGEX:
         s = s.resourceIdMatches((String) param);
+        break;
+      default:
         break;
     }
   }

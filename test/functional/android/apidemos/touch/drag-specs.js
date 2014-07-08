@@ -23,40 +23,40 @@ describe("apidemo - touch - drag", function () {
       driver
         .elementByName("Content")
         .then(function (el) {
-          var action = new TouchAction();
-          action.press();
-          driver
+          return driver
             .elementByName("Animation")
             .then(function (el2) {
-              return action.moveTo({ element: el2.value.toString() }).release().performOn(el);
+              var action = new TouchAction(driver);
+              action.press({el: el}).moveTo({ el: el2}).release();
+              return action.perform();
             });
         })
         .sleep(500)
         .elementByName("Views")
         .then(function (el) {
-          var action = new TouchAction();
-          return action.tap().performOn(el);
+          var action = new TouchAction(driver);
+          return action.tap({el: el}).perform();
         })
         .sleep(500)
         .elementByName("Drag and Drop")
         .then(function (el) {
-          var action = new TouchAction();
-          return action.tap().performOn(el);
+          var action = new TouchAction(driver);
+          return action.tap({el: el}).perform();
         })
         .sleep(500)
-        .elementById("com.example.android.apis:id/drag_dot_3")
+        .elementById("io.appium.android.apis:id/drag_dot_3")
         .then(function (dd3) {
           return driver
-            .elementById("com.example.android.apis:id/drag_dot_2")
+            .elementById("io.appium.android.apis:id/drag_dot_2")
             .then(function (dd2) {
-              var action = new TouchAction();
-              return action.longPress().moveTo({ element: dd2.value.toString() }).release().performOn(dd3);
+              var action = new TouchAction(driver);
+              return action.longPress({el: dd3}).moveTo({ el: dd2 }).release().perform();
             });
         })
         .sleep(1500)
-        .elementById("com.example.android.apis:id/drag_result_text").text()
+        .elementById("io.appium.android.apis:id/drag_result_text").text()
           .should.become("Dropped!")
-        .sleep(15000)
+        .sleep(5000)
         .nodeify(done);
     });
   });

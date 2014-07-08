@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 
 var args = process.argv.slice(2),
@@ -31,7 +33,7 @@ parser.addArgument(
 );
 var args = parser.parseArgs();
 
-var config = require('../test-config');
+var config = require('../test-glob-config');
 
 var fileInfos = config[args.config];
 if (!(fileInfos instanceof Array)) {

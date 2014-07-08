@@ -67,7 +67,6 @@ run_ios_tests() {
             echo "Did not find /Applications/Xcode-$1.app, using default"
         fi
     fi
-    echo 
     DEVICE=$2 time $appium_mocha -g $3 -i \
         test/functional/common \
         test/functional/ios
@@ -122,5 +121,7 @@ if $gappium_only || $all_tests; then
     echo "Start the android emulator api 19 and press Enter."    
     read
     DEVICE=android time $appium_mocha test/functional/gappium
+    echo "Start the android emulator api 16 and press Enter."    
+    read
     DEVICE=selendroid time $appium_mocha test/functional/gappium
 fi

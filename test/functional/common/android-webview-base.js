@@ -17,8 +17,9 @@ module.exports = function () {
 
   beforeEach(function (done) {
     driver
+      .sleep(3000)
       .setImplicitWaitTimeout(0)
-      .elementByName('buttonStartWebviewCD')
+      .waitForElementByName('buttonStartWebviewCD')
       .then(function (el) {
         if (el) return;
         else return driver.back();
@@ -29,7 +30,11 @@ module.exports = function () {
         if (env.SELENDROID) return driver.waitForElementById('mainWebView');
         else return driver.waitForElementByXPath(
           "//android.widget.TextView[@text='Web View Interaction']");
-      }).context('WEBVIEW')
+      })
+      .contexts()
+      .then(function (ctxs) {
+        return driver.context(ctxs[ctxs.length - 1]);
+      })
       .nodeify(done);
   });
 
@@ -50,13 +55,9 @@ module.exports = function () {
     });
   }
 
-  it('should be able to switch to view', function (done) {
-    driver.context('WEBVIEW').nodeify(done);
-  });
-
   it('should list all contexts', function (done) {
     driver
-      .contexts().should.eventually.have.length(2)
+      .contexts().should.eventually.have.length.at.least(2)
       .nodeify(done);
   });
 

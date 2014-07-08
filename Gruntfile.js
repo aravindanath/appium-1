@@ -13,6 +13,7 @@ var path = require('path')
   , buildSelendroidServer = gruntHelpers.buildSelendroidServer
   , buildAndroidApp = gruntHelpers.buildAndroidApp
   , buildSelendroidAndroidApp = gruntHelpers.buildSelendroidAndroidApp
+  , fixSelendroidAndroidManifest = gruntHelpers.fixSelendroidAndroidManifest
   , installAndroidApp = gruntHelpers.installAndroidApp
   , generateServerDocs = gruntHelpers.generateServerDocs
   , generateAppiumIo = gruntHelpers.generateAppiumIo
@@ -53,10 +54,28 @@ module.exports = function (grunt) {
           , 'afterEach': true
           }
         }
+      },
+      examples: {
+        src: ['sample-code/examples/node/**/*.js']
+      , options: {
+        expr: true
+        , globals: {
+            'describe': true
+          , 'it': true
+          , 'before': true
+          , 'after': true
+          , 'beforeEach': true
+          , 'afterEach': true
+          }
+        }
       }
     }
   , jscs: {
-    src: '**/*.js',
+    src: [
+      '**/*.js', '!submodules/**', '!node_modules/**',
+      '!lib/server/static/**', '!lib/devices/firefoxos/atoms/*.js',
+      '!test/harmony/**/*.js', '!sample-code/examples/node/**/*-yiewd.js',
+      '!sample-code/apps/**', '!sample-code/examples/php/vendor/**'],
     options: {
         config: ".jscs.json"
       }
@@ -105,6 +124,11 @@ module.exports = function (grunt) {
   });
   grunt.registerTask('buildSelendroidServer', function () {
     buildSelendroidServer(this.async());
+  });
+  grunt.registerTask('fixSelendroidAndroidManifest', function () {
+    var destDir = path.resolve(__dirname, "build", "selendroid");
+    var dstManifest = path.resolve(destDir, "AndroidManifest.xml");
+    fixSelendroidAndroidManifest(dstManifest, this.async());
   });
   grunt.registerTask('configAndroidApp', function (appName) {
     setupAndroidApp(grunt, appName, this.async());
