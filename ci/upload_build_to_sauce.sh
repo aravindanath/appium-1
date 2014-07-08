@@ -1,11 +1,31 @@
 #!/bin/sh
-GIT_COMMIT=git rev-parse --short HEAD 2> /dev/null | sed "s/\(.*\)/\1/"
-tar cfj - --exclude=node_modules --exclude=submodules . | \
+set -e
+
+if [[ "${TARBALL}" == '' ]]; then
+    echo Please set the TARBALL env variable!
+    exit 1
+fi
+
+echo "Starting to compress and upload appium to ${TARBALL}."
+
+UPLOAD_INFO_FILE=/tmp/build-upload-info.json
+
+# zipping/uploading
+tar \
+    cfj - \
+    -L \
+    --exclude=.git \
+    --exclude=submodules . | \
 curl \
-    --verbose \
+    -k \
     --progress-bar \
     -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
-    -X POST "https://saucelabs.com/rest/v1/storage/${SAUCE_USERNAME}/appium-dev-${GIT_COMMIT}.bjz?overwrite=true" \
+    -X POST "${SAUCE_REST_ROOT}/storage/${SAUCE_USERNAME}/${TARBALL}?overwrite=true" \
     -H "Content-Type: application/octet-stream" \
-    --data-binary @- > /tmp/curl.out
-cat /tmp/curl.out
+    --data-binary @- \
+    -o $UPLOAD_INFO_FILE
+
+# checking/printing result file
+ci/tools/build-upload-tool.js $UPLOAD_INFO_FILE
+
+echo "Finished to compress and upload appium."

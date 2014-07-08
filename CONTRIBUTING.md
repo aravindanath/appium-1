@@ -1,7 +1,7 @@
 # Contributing to Appium
 
 Fork the project, make a change, and send a pull request! Please have a look at our
-[Style Guide](https://github.com/appium/appium/blob/master/docs/style-guide.md) before getting to work.
+[Style Guide](docs/en/style-guide.md) before getting to work.
 Please make sure the unit and functional tests pass before sending a pull request; for more
 information on how to run tests, keep reading!
 
@@ -24,19 +24,24 @@ The quick way to get started:
 
 ## Hacking with Appium
 
+Make sure you have ant, maven, adb installed and added to system PATH, also you
+would need the android-16 sdk (for Selendroid) and android-18 sdk installed.
 From your local repo's command prompt, install the following packages using the
 following commands (if you didn't install `node` using homebrew, you might have
 to run npm with sudo privileges):
 
     npm install -g mocha
     npm install -g grunt-cli
+    node bin/appium-doctor.js --dev
     ./reset.sh --dev
 
-The first two commands install test and build tools (`sudo` may not be necessary
-if you installed node.js via Homebrew). The third command installs all app
-dependencies and builds supporting binaries and test apps. `reset.sh` is also the
-recommended command to run after pulling changes from master. At this point,
-you're able to start the Appium server:
+The first two commands install test and build tools (`sudo` may not be
+necessary if you installed node.js via Homebrew). The third command verifies
+that all of the dependencies are set up correctly (since dependencies for
+building Appium are different from those for simply running Appium) and fourth
+command installs all app dependencies and builds supporting binaries and test
+apps. `reset.sh` is also the recommended command to run after pulling changes
+from master. At this point, you're able to start the Appium server:
 
     node .
 
@@ -45,12 +50,12 @@ There are some arguments you can pass into the Appium server from the command-li
     node . --app /absolute/path/to/app  // launch Appium server with app
     node . --launch // pre-launch the app when appium loads
     node . --log /my/appium.log // log to file instead of stdout
-    node . --quiet // don't log verbose output
+    node . --log-level warn // don't log verbose output
 
-See [the server documentation](https://github.com/appium/appium/blob/master/docs/server-args.md)
+See [the server documentation](docs/en/server-args.md)
 for a full list of arguments.
 
-Like the power of automating dev tasks? Check out the [Appium Grunt tasks](https://github.com/appium/appium/blob/master/docs/grunt.md)
+Like the power of automating dev tasks? Check out the [Appium Grunt tasks](docs/en/grunt.md)
 available to help with building apps, installing apps, generating docs, etc.
 
 ### Hacking with Appium for iOS
@@ -64,7 +69,7 @@ have to modify your `/etc/authorization` file in one of two ways:
 2. Run the following grunt command which automatically modifies your
    `/etc/authorization` file for you:
 
-       sudo grunt authorize
+       sudo ./bin/authorize-ios.js
 
 At this point, run:
 
@@ -78,8 +83,7 @@ Bootstrap running for Android by running:
 
     ./reset.sh --android --dev
 
-If you want to use [Selendroid](http://github.com/DominikDary/selendroid) for support on
-older Android platforms like 2.3, then run:
+If you want to use [Selendroid](http://github.com/DominikDary/selendroid) for support on older Android platforms like 2.3, then run:
 
     ./reset.sh --selendroid --dev
 
@@ -109,7 +113,7 @@ Or you can run reset for individual platforms only:
 
 ## Running Tests
 
-First, check out our documentation on [running tests in general](https://github.com/appium/appium/blob/master/docs/running-tests.md)
+First, check out our documentation on [running tests in general](docs/en/running-tests.md)
 Make sure your system is set up properly for the platforms you desire to test
 on.
 
@@ -143,11 +147,13 @@ your changes against code quality standards:
 If you have an Appium server listening, you can run individual test files using
 Mocha, for example:
 
-    mocha -t 60000 -R spec test/functional/ios/testapp/simple.js
+    DEVICE=ios71 mocha -t 60000 -R spec test/functional/ios/testapp/simple.js
 
 Or individual tests (e.g., a test with the word "alert" in the name):
 
-    mocha -t 60000 -R spec --grep "alert" test/functional/ios/apidemos
+    DEVICE=ios6 mocha -t 60000 -R spec --grep "alert" test/functional/ios/apidemos
 
 NOTE: For Android, you will need an emulator/device with screen size of 4.0"
 (480x800). Some tests might fail on a different screen size.
+
+`DEVICE` must be set to a valid value: `ios71`, `ios6`, `android`, `selendroid`

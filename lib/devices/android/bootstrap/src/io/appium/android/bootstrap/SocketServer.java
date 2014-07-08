@@ -1,27 +1,17 @@
 package io.appium.android.bootstrap;
 
-import io.appium.android.bootstrap.exceptions.AndroidCommandException;
+import com.android.uiautomator.common.UiWatchers;
 import io.appium.android.bootstrap.exceptions.CommandTypeException;
 import io.appium.android.bootstrap.exceptions.SocketServerException;
-import io.appium.android.bootstrap.handler.Find;
+import io.appium.android.bootstrap.handler.UpdateStrings;
 import io.appium.android.bootstrap.utils.TheWatchers;
+import org.json.JSONException;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.android.uiautomator.common.UiWatchers;
 
 /**
  * The SocketServer class listens on a specific port for commands from Appium,
@@ -30,18 +20,18 @@ import com.android.uiautomator.common.UiWatchers;
  */
 class SocketServer {
 
-  ServerSocket                         server;
-  Socket                               client;
-  BufferedReader                       in;
-  PrintWriter                          out;
-  boolean                              keepListening;
+  ServerSocket   server;
+  Socket         client;
+  BufferedReader in;
+  BufferedWriter out;
+  boolean        keepListening;
   private final AndroidCommandExecutor executor;
-  private final TheWatchers            watchers = TheWatchers.getInstance();
-  private final Timer                  timer    = new Timer("WatchTimer");
+  private final TheWatchers watchers = TheWatchers.getInstance();
+  private final Timer       timer    = new Timer("WatchTimer");
 
   /**
    * Constructor
-   * 
+   *
    * @param port
    * @throws SocketServerException
    */
@@ -50,7 +40,7 @@ class SocketServer {
     executor = new AndroidCommandExecutor();
     try {
       server = new ServerSocket(port);
-      Logger.info("Socket opened on port " + port);
+      Logger.debug("Socket opened on port " + port);
     } catch (final IOException e) {
       throw new SocketServerException(
           "Could not start socket server listening on " + port);
@@ -60,7 +50,7 @@ class SocketServer {
 
   /**
    * Constructs an @{link AndroidCommand} and returns it.
-   * 
+   *
    * @param data
    * @return @{link AndroidCommand}
    * @throws JSONException
@@ -71,27 +61,32 @@ class SocketServer {
     return new AndroidCommand(data);
   }
 
+  private StringBuilder input = new StringBuilder();
+
   /**
    * When data is available on the socket, this method is called to run the
    * command or throw an error if it can't.
-   * 
+   *
    * @throws SocketServerException
    */
   private void handleClientData() throws SocketServerException {
-    String input = "";
-    char a;
-    AndroidCommand cmd;
-    String res;
     try {
-      while ((a = (char) in.read()) != -1 && in.ready()) {
-        input += a;
+      input.setLength(0); // clear
+
+      String res;
+      int a;
+      // (char) -1 is not equal to -1.
+      // ready is checked to ensure the read call doesn't block.
+      while ((a = in.read()) != -1 && in.ready()) {
+        input.append((char) a);
       }
-      Logger.info("Got data from client: " + input);
+      String inputString = input.toString();
+      Logger.debug("Got data from client: " + inputString);
       try {
-        cmd = getCommand(input);
-        Logger.info("Got command of type " + cmd.commandType().toString());
+        AndroidCommand cmd = getCommand(inputString);
+        Logger.debug("Got command of type " + cmd.commandType().toString());
         res = runCommand(cmd);
-        Logger.info("Returning result: " + res);
+        Logger.debug("Returning result: " + res);
       } catch (final CommandTypeException e) {
         res = new AndroidCommandResult(WDStatus.UNKNOWN_ERROR, e.getMessage())
             .toString();
@@ -110,12 +105,12 @@ class SocketServer {
   /**
    * Listens on the socket for data, and calls {@link #handleClientData()} when
    * it's available.
-   * 
+   *
    * @throws SocketServerException
    */
   public void listenForever() throws SocketServerException {
-    Logger.info("Appium Socket Server Ready");
-    loadStringsJson();
+    Logger.debug("Appium Socket Server Ready");
+    UpdateStrings.loadStringsJson();
     dismissCrashAlerts();
     final TimerTask updateWatchers = new TimerTask() {
       @Override
@@ -130,16 +125,16 @@ class SocketServer {
 
     try {
       client = server.accept();
-      Logger.info("Client connected");
-      in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-      out = new PrintWriter(client.getOutputStream(), true);
+      Logger.debug("Client connected");
+      in = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
+      out = new BufferedWriter(new OutputStreamWriter(client.getOutputStream(), "UTF-8"));
       while (keepListening) {
         handleClientData();
       }
       in.close();
       out.close();
       client.close();
-      Logger.info("Closed client connection");
+      Logger.debug("Closed client connection");
     } catch (final IOException e) {
       throw new SocketServerException("Error when client was trying to connect");
     }
@@ -148,41 +143,18 @@ class SocketServer {
   public void dismissCrashAlerts() {
     try {
       new UiWatchers().registerAnrAndCrashWatchers();
-      Logger.info("Registered crash watchers.");
+      Logger.debug("Registered crash watchers.");
     } catch (Exception e) {
-      Logger.info("Unable to register crash watchers.");
-    }
-  }
-
-  public void loadStringsJson() {
-    Logger.info("Loading json...");
-    try {
-      final File jsonFile = new File("/data/local/tmp/strings.json");
-      // json will not exist for apks that are only on device
-      // because the node server can't extract the json from the apk.
-      if (!jsonFile.exists()) {
-        return;
-      }
-      final DataInputStream dataInput = new DataInputStream(
-          new FileInputStream(jsonFile));
-      final byte[] jsonBytes = new byte[(int) jsonFile.length()];
-      dataInput.readFully(jsonBytes);
-      // this closes FileInputStream
-      dataInput.close();
-      final String jsonString = new String(jsonBytes, "UTF-8");
-      Find.apkStrings = new JSONObject(jsonString);
-      Logger.info("json loading complete.");
-    } catch (final Exception e) {
-      e.printStackTrace();
+      Logger.debug("Unable to register crash watchers.");
     }
   }
 
   /**
    * When {@link #handleClientData()} has valid data, this method delegates the
    * command.
-   * 
+   *
    * @param cmd
-   *          AndroidCommand
+   *     AndroidCommand
    * @return Result
    */
   private String runCommand(final AndroidCommand cmd) {
@@ -193,7 +165,7 @@ class SocketServer {
     } else if (cmd.commandType() == AndroidCommandType.ACTION) {
       try {
         res = executor.execute(cmd);
-      } catch (final AndroidCommandException e) {
+      } catch (final Exception e) {
         res = new AndroidCommandResult(WDStatus.UNKNOWN_ERROR, e.getMessage());
       }
     } else {

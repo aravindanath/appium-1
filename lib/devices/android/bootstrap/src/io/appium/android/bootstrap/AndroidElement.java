@@ -1,18 +1,18 @@
 package io.appium.android.bootstrap;
 
-import io.appium.android.bootstrap.exceptions.InvalidCoordinatesException;
-import io.appium.android.bootstrap.exceptions.NoAttributeFoundException;
-import io.appium.android.bootstrap.utils.Point;
 import android.graphics.Rect;
-import android.os.Build;
-
+import android.view.MotionEvent.PointerCoords;
 import com.android.uiautomator.core.UiObject;
 import com.android.uiautomator.core.UiObjectNotFoundException;
 import com.android.uiautomator.core.UiSelector;
-
-import android.view.MotionEvent.PointerCoords;
+import io.appium.android.bootstrap.exceptions.InvalidCoordinatesException;
+import io.appium.android.bootstrap.exceptions.NoAttributeFoundException;
+import io.appium.android.bootstrap.utils.Point;
+import io.appium.android.bootstrap.utils.UnicodeEncoder;
 
 import java.lang.reflect.Method;
+
+import static io.appium.android.bootstrap.utils.API.API_18;
 
 /**
  * Proxy class for UiObject.
@@ -42,7 +42,7 @@ public class AndroidElement {
 
   public boolean dragTo(final int destX, final int destY, final int steps)
       throws UiObjectNotFoundException {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+    if (API_18) {
       return el.dragTo(destX, destY, steps);
     } else {
       Logger.error("Device does not support API >= 18!");
@@ -52,7 +52,7 @@ public class AndroidElement {
 
   public boolean dragTo(final UiObject destObj, final int steps)
       throws UiObjectNotFoundException {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+    if (API_18) {
       return el.dragTo(destObj, steps);
     } else {
       Logger.error("Device does not support API >= 18!");
@@ -92,7 +92,7 @@ public class AndroidElement {
     } else {
       pos.x = rect.left + point.x;
     }
-    if (boundsChecking == true) {
+    if (boundsChecking) {
       if (pos.x > rect.right || pos.x < rect.left) {
         throw new InvalidCoordinatesException("X coordinate ("
             + pos.x.toString() + " is outside of element rect: "
@@ -107,7 +107,7 @@ public class AndroidElement {
     } else {
       pos.y = rect.left + point.y;
     }
-    if (boundsChecking == true) {
+    if (boundsChecking) {
       if (pos.y > rect.bottom || pos.y < rect.top) {
         throw new InvalidCoordinatesException("Y coordinate ("
             + pos.y.toString() + " is outside of element rect: "
@@ -120,7 +120,7 @@ public class AndroidElement {
 
   public boolean getBoolAttribute(final String attr)
       throws UiObjectNotFoundException, NoAttributeFoundException {
-    boolean res = false;
+    boolean res;
     if (attr.equals("enabled")) {
       res = el.isEnabled();
     } else if (attr.equals("checkable")) {
@@ -157,7 +157,7 @@ public class AndroidElement {
   }
 
   public String getClassName() throws UiObjectNotFoundException {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+    if (API_18) {
       return el.getClassName();
     } else {
       Logger.error("Device does not support API >= 18!");
@@ -175,7 +175,7 @@ public class AndroidElement {
 
   public String getStringAttribute(final String attr)
       throws UiObjectNotFoundException, NoAttributeFoundException {
-    String res = "";
+    String res;
     if (attr.equals("name")) {
       res = getContentDesc();
       if (res.equals("")) {
@@ -209,7 +209,7 @@ public class AndroidElement {
 
   public boolean pinchIn(final int percent, final int steps)
       throws UiObjectNotFoundException {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+    if (API_18) {
       return el.pinchIn(percent, steps);
     } else {
       Logger.error("Device does not support API >= 18!");
@@ -219,7 +219,7 @@ public class AndroidElement {
 
   public boolean pinchOut(final int percent, final int steps)
       throws UiObjectNotFoundException {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+    if (API_18) {
       return el.pinchOut(percent, steps);
     } else {
       Logger.error("Device does not support API >= 18!");
@@ -232,19 +232,27 @@ public class AndroidElement {
   }
 
   public boolean setText(final String text) throws UiObjectNotFoundException {
-    return el.setText(text);
+    if (UnicodeEncoder.needsEncoding(text)) {
+      Logger.debug("Sending Unicode text to element: " + text);
+      String encodedText = UnicodeEncoder.encode(text);
+      Logger.debug("Encoded text: " + encodedText);
+      return el.setText(encodedText);
+    } else {
+      Logger.debug("Sending plain text to element: " + text);
+      return el.setText(text);
+    }
   }
 
   public boolean performMultiPointerGesture(PointerCoords[] ...touches) {
     try {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+      if (API_18) {
         // The compile-time SDK expects the wrong arguments, but the runtime
         // version in the emulator is correct. So we cannot do:
         //   `return el.performMultiPointerGesture(touches);`
         // Instead we need to use Reflection to do it all at runtime.
         Method method = this.el.getClass().getMethod("performMultiPointerGesture", PointerCoords[][].class);
         Boolean rt = (Boolean)method.invoke(this.el, (Object)touches);
-        return rt.booleanValue();
+        return rt;
       } else {
         Logger.error("Device does not support API < 18!");
         return false;

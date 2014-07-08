@@ -1,14 +1,8 @@
----
-layout: default
-title: readme
----
-
 # Appium
 
 > Appium是一个支持原生,混合和移动web apps的开源的跨平台测试框架工具
 
-[![NPM version](https://badge.fury.io/js/appium.png)](https://npmjs.org/package/appium)
-[![Build Status](https://api.travis-ci.org/appium/appium.png?branch=master)](https://travis-ci.org/appium/appium)
+## [文档网站](http://appium.io/documentation.html?lang=zh)
 
 ## 支持平台
 
@@ -22,7 +16,7 @@ title: readme
 2. 你可以用你喜欢的开发工具使用任何 [WebDriver](https://code.google.com/p/selenium/wiki/JsonWireProtocol) 兼容的语言来编写测试用例.比如
 Java, [Objective-C](https://github.com/appium/selenium-objective-c),
    JavaScript with Node.js (in both [callback](https://github.com/admc/wd) and [yield-based](https://github.com/jlipps/yiewd) flavours),
-   PHP, Python, [Ruby](https://github.com/appium/ruby_lib), C#, Clojure, 或者 Perl 
+   PHP, Python, [Ruby](https://github.com/appium/ruby_lib), C#, Clojure, 或者 Perl
    可以使用标准的Selenium WebDriver API和特定语言的客户端库.
 3. 你可以使用任何测试框架.
 
@@ -45,15 +39,15 @@ Appium最终开启了跨平台原生移动自动化的可能.
 * Mac OS X 10.7 or higher, 10.8.4 recommended
 * XCode &gt;= 4.6.3
 * Apple Developer Tools (iPhone simulator SDK, command line tools)
-* [Ensure you read our documentation on setting yourself up for iOS testing!](running-on-osx.cn#ios)
+* [Ensure you read our documentation on setting yourself up for iOS testing!](running-on-osx.cn.md)
 
 ### android依赖
 
 * [Android SDK](http://developer.android.com) API &gt;= 17 (Additional features require 18)
 * Appium支持OS X上的Android, Linux和Windows上的beta支持.确保你通过如下的指示来配置你需要运行测试的不同系统的环境
-  * [linux](running-on-linux.cn)
-  * [osx](running-on-osx.cn#android)
-  * [windows](running-on-windows.cn)
+  * [linux](running-on-linux.cn.md)
+  * [osx](running-on-osx.cn.md)
+  * [windows](running-on-windows.cn.md)
 
 ### FirefoxOS Requirements
 
@@ -71,24 +65,24 @@ Appium最终开启了跨平台原生移动自动化的可能.
 ### 使用app
 
 * [下载 Appium app](https://github.com/appium/appium/releases)
-* 运行它! 
+* 运行它!
 
 ## 为Appium编写测试
 
 我们支持 [Selenium WebDriver JSON Wire Protocol](https://github.com/appium/appium/wiki/JSON-Wire-Protocol:-Supported-Methods) 的一个子集
-首先还需要指定特定移动平台相关的 [desired capabilities](caps.cn) 来通过appium运行你的测试
+首先还需要指定特定移动平台相关的 [desired capabilities](caps.cn.md) 来通过appium运行你的测试
 
 你可以通过 [WebDriver](https://code.google.com/p/selenium/wiki/JsonWireProtocol) 的元素定位策略的一个子集来定位元素
-更多信息请参考 [finding elements](finding-elements.cn)
+更多信息请参考 [finding elements](finding-elements.cn.md)
 
 
-我们也对 JSON Wire Protocol for [automating mobile gestures](gestures.cn) 做了一些扩展以支持像 tap, flick, 和 swipe 这样的动作(松开,按压,滑动等手机手势)
+我们也对 JSON Wire Protocol for [automating mobile gestures](gestures.cn.md) 做了一些扩展以支持像 tap, flick, 和 swipe 这样的动作(松开,按压,滑动等手机手势)
 
-你也可以在混合模式下自动化你的用HTML5构建的Web页面 [hybrid app guide](hybrid.cn)
-这个代码地址包含了 [很多不同语言的测试例子](https://github.com/appium/appium/tree/master/sample-code/examples/node)!
+你也可以在混合模式下自动化你的用HTML5构建的Web页面 [hybrid app guide](hybrid.cn.md)
+这个代码地址包含了 [很多不同语言的测试例子](/sample-code/examples/node)!
 
 
-想了解全部的Appium的文档页面,请访问 [这个目录](https://github.com/appium/appium/blob/master/docs/).
+想了解全部的Appium的文档页面,请访问 [这个目录](#).
 
 ## 工作原理
 
@@ -97,19 +91,19 @@ Appium通过多种原生自动化框架来提供基于Selenium的 [WebDriver JSO
 Appium驱动Apple的UIAutomation库提供IOS支持. UIAutomation基于[Dan Cuellar's](http://github.com/penguinho)
 
 Android支持上, 在新版本的Android使用了Uiautomator框架,老版本的android上使用了
-[Selendroid](http://github.com/DominikDary/selendroid) 
+[Selendroid](http://github.com/DominikDary/selendroid)
 
 FirefoxOS的支持依赖一个基于Gecko平台并且兼容WebDriver的自动化驱动[Marionette](https://developer.mozilla.org/en-US/docs/Marionette),不过暂不翻译了.因为暂时用不到
 
 
 ## 如何贡献代码
-可以看下我们的文档  [contribution documentation](https://github.com/appium/appium/blob/master/CONTRIBUTING.md) 
+可以看下我们的文档  [contribution documentation](../../CONTRIBUTING.md)
 以了解如何从源代码中进行编译,测试和运行
 
 
 ## 其他项目的授权和灵感来源
 
-[Credits](credits.cn)
+[Credits](credits.cn.md)
 
 ## 邮件列表
 
@@ -117,7 +111,7 @@ FirefoxOS的支持依赖一个基于Gecko平台并且兼容WebDriver的自动化
 
 ## 问题定位
 
-我们增加了一个 [问题定位指南](troubleshooting.cn).
+我们增加了一个 [问题定位指南](troubleshooting.cn.md).
 如果你遇到一些问题,请看下这个问的那个.它包含了一些常见的错误说明,以及在无法解决的情况如何和社区联系
 
 
@@ -129,3 +123,12 @@ FirefoxOS的支持依赖一个基于Gecko平台并且兼容WebDriver的自动化
 文档翻译工作由[testerhome](http://testerhome.com/topics/150)在推动, 我们会不断补充更多的文档和测试用例.
 欢迎对Appium感兴趣的同学加入我们, 为开源社区贡献中国人的力量.
 
+## 贡献者
+来自 testerhome 的：
+
+* seveniruby
+* monkey
+* lihuazhang
+* FredZero
+* pinghailinfeng
+* niweyzhuce

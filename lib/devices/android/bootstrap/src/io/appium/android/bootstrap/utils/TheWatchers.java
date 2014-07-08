@@ -2,7 +2,6 @@ package io.appium.android.bootstrap.utils;
 
 import com.android.uiautomator.core.UiObject;
 import com.android.uiautomator.core.UiSelector;
-
 import io.appium.android.bootstrap.Logger;
 
 public class TheWatchers {
@@ -19,7 +18,7 @@ public class TheWatchers {
   public boolean check() {
     // Send only one alert message...
     if (isDialogPresent() && (!alerted)) {
-      Logger.info("Emitting system alert message");
+      Logger.debug("Emitting system alert message");
       alerted = true;
     }
 

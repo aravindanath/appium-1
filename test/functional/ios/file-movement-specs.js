@@ -5,10 +5,12 @@ var setup = require("../common/setup-base")
   , getAppPath = require('../../helpers/app').getAppPath
   , fs = require('fs')
   , path = require('path')
+  , Readable = require('stream').Readable
   , iOSSettings = require('../../../lib/devices/ios/settings.js')
-  , exec = require('child_process').exec;
+  , exec = require('child_process').exec
+  , Unzip = require('unzip');
 
-describe('pullFile', function () {
+describe('file movements - pullFile', function () {
   var driver;
   var desired = {
     app: getAppPath('testapp')
@@ -16,22 +18,22 @@ describe('pullFile', function () {
   setup(this, desired).then(function (d) { driver = d; });
 
   it('should be able to fetch the Address book', function (done) {
-    var args = {path: 'Library/AddressBook/AddressBook.sqlitedb'};
     driver
-      .execute('mobile: pullFile', [args]).then(function (data) {
+      .pullFile('Library/AddressBook/AddressBook.sqlitedb')
+      .then(function (data) {
         var stringData = new Buffer(data, 'base64').toString();
         return stringData.indexOf('SQLite').should.not.equal(-1);
       })
     .nodeify(done);
   });
   it('should not be able to fetch something that does not exist', function (done) {
-    var args = {path: 'Library/AddressBook/nothere.txt'};
     driver
-      .execute('mobile: pullFile', [args])
+      .pullFile('Library/AddressBook/nothere.txt')
       .should.eventually.be.rejectedWith(/13/)
     .nodeify(done);
   });
-  describe('for a .app', function () {
+  describe('for a .app @skip-ci', function () {
+    // TODO: skipping ci because of local files use, to review.
     var fileContent = "IAmTheVeryModelOfAModernMajorTestingTool";
     var fileName = "someFile.tmp";
     var fullPath = "";
@@ -61,12 +63,43 @@ describe('pullFile', function () {
       }
     });
     it('should be able to fetch a file from the app directory', function (done) {
-      var args = {path: path.resolve('/testapp.app', fileName)};
+      var arg = path.resolve('/testapp.app', fileName);
       driver
-        .execute('mobile: pullFile', [args]).then(function (data) {
+        .pullFile(arg)
+        .then(function (data) {
           var stringData = new Buffer(data, 'base64').toString();
           return stringData.should.equal(fileContent);
         })
+        .nodeify(done);
+    });
+  });
+  describe('file movements - pullFolder', function () {
+    it('should pull all the files in Library/AddressBook', function (done) {
+      var entryCount = 0;
+      driver.pullFolder('Library/AddressBook')
+      .then( function (data) {
+        var zipStream = new Readable();
+        zipStream._read = function noop() {};
+        zipStream
+          .pipe(Unzip.Parse())
+          .on('entry', function (entry) {
+            entryCount++;
+            entry.autodrain();
+          })
+          .on('close', function () {
+            entryCount.should.be.above(1);
+            done();
+          });
+
+        zipStream.push(data, 'base64');
+        zipStream.push(null);
+      });
+
+    });
+    it('should not be able to fetch a folder that does not exist', function (done) {
+      driver
+        .pullFolder('Library/Rollodex')
+        .should.eventually.be.rejectedWith(/13/)
       .nodeify(done);
     });
   });

@@ -3,7 +3,7 @@
 var setup = require("../../common/setup-base"),
     desired = require('./desired');
 
-describe('uicatalog - execute -', function () {
+describe('uicatalog - execute @skip-ios6', function () {
   var driver;
   setup(this, desired).then(function (d) { driver = d; });
 
@@ -20,7 +20,7 @@ describe('uicatalog - execute -', function () {
       .nodeify(done);
   });
   it('should not fail with quotes', function (done) {
-    driver.execute('console.log(\'hi\\\'s\');')
+    driver.execute('$.log(\'hi\\\'s\');')
       .nodeify(done);
   });
 });

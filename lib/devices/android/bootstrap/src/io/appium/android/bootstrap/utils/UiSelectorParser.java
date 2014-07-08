@@ -1,6 +1,7 @@
 package io.appium.android.bootstrap.utils;
 
 import com.android.uiautomator.core.UiSelector;
+import io.appium.android.bootstrap.Logger;
 import io.appium.android.bootstrap.exceptions.UiSelectorSyntaxException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -9,7 +10,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 /**
- * For parsing strings passed in for the "-android uiautomator" locator strategy
+ * For parsing strings which create new UiSelector objects into UiSelector object.
  */
 public class UiSelectorParser {
 
@@ -94,7 +95,7 @@ public class UiSelectorParser {
       throw new UiSelectorSyntaxException(methodName + " method expects an argument");
     }
 
-    //add two for parentheses surrounding arg
+    // add two for parentheses surrounding arg
     text = text.substring(methodName.length() + argument.length() + 2);
 
     ArrayList<Method> overloadedMethods = getSelectorMethods(methodName);
@@ -151,6 +152,7 @@ public class UiSelectorParser {
   }
 
   private Object coerceArgToType(Type type, String argument) throws UiSelectorSyntaxException {
+    Logger.debug("UiSelector coerce type: " + type + " arg: " + argument);
     if (type == boolean.class) {
       if (argument.equals("true")) {
         return true;

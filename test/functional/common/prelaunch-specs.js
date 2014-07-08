@@ -7,7 +7,6 @@ var env = require('../../helpers/env')
   , androidApp = path.resolve(__dirname, "..", "..", "..", "sample-code",
       "apps", "ApiDemos", "bin", "ApiDemos-debug.apk")
   , spawn = require('child_process').spawn
-  , exec = require('child_process').exec
   , crazyPort = 4799
   , _ = require('underscore');
 
@@ -21,7 +20,7 @@ function log(data) {
 }
 
 var waitForLaunch = function (app, extraArgs, done) {
-  var args = [".", "-p", crazyPort, "-l", "-dd", "-m", "-r", "3", "-lt", JSON.stringify(env.LAUNCH_TIMEOUT)];
+  var args = [".", "-p", crazyPort, "-l", "-dd", "-r", "3", "-lt", JSON.stringify(env.LAUNCH_TIMEOUT)];
   if (app) {
     args = args.concat(["--app", app]);
   }
@@ -47,7 +46,9 @@ var waitForLaunch = function (app, extraArgs, done) {
   return proc;
 };
 
-describe("appium - prelaunch -", function () {
+describe("common - prelaunch @skip-ci @skip-ios6", function () {
+  // TODO: test helpers need to be modified to cope prelaunch on sauce.
+  // leaving it out for now.
   this.timeout(env.MOCHA_INIT_TIMEOUT);
   describe('ios @skip-android-all', function () {
     var proc;
@@ -89,7 +90,7 @@ describe("appium - prelaunch -", function () {
   // TODO
   describe('android @skip-ios-all @skip-android-all', function () {
     it('should work for android', function (done) {
-      var args = ["--app-pkg", "com.example.android.apis", "--app-activity",
+      var args = ["--app-pkg", "io.appium.android.apis", "--app-activity",
         ".ApiDemos"];
       waitForLaunch(androidApp, args, done);
     });
