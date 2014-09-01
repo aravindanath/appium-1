@@ -3,7 +3,7 @@
 Appium is an open-source tool for automating native,
 mobile web, and hybrid applications on iOS and Android platforms.
 **Native apps** are those written using the iOS or Android SDKs. **Mobile web apps** are web apps accessed using a mobile browser (Appium supports
-Safari on iOS and Chrome on Android). **Hybrid apps** have a
+Safari on iOS and Chrome or the built-in 'Browser' app on Android). **Hybrid apps** have a
 wrapper around a "webview" -- a native control that enables interaction with
 web content. Projects like [Phonegap](http://phonegap.com/),
 make it easy to build apps using web technologies that are then bundled into
@@ -95,7 +95,7 @@ Appium is a server written in Node.js. It can be built and installed from source
 There are client libraries (in Java, Ruby, Python, PHP, JavaScript, and C#)
 which support Appium's extensions to the WebDriver protocol. When using Appium,
 you want to use these client libraries instead of your regular WebDriver
-client. You can view the full list of libraries [here](/appium-clients.md).
+client. You can view the full list of libraries [here](appium-clients.md).
 
 **[Appium.app](https://github.com/appium/appium-dot-app), [Appium.exe](https://github.com/appium/appium-dot-exe)**<br/>
 There exist GUI wrappers around the Appium server that can be downloaded.

@@ -4,11 +4,10 @@ Appium on OS X supports iOS and Android testing.
 
 ### System setup (iOS)
 
-* Appium requires Mac OS X 10.7, but 10.8 is recommended.
-* Make sure you have Xcode and the iOS SDK(s) installed. (Appium currently
-  supports Xcode 4.6.3 for iOS up to 6.1 and Xcode 5 for iOS 7.0 and 7.1. Note
-  that testing against iOS versions below 7.0 using Xcode 5 is not recommended.
-  See the next section for more information.)
+* Appium requires Mac OS X 10.7, but 10.8 or 10.9 is recommended.
+* Make sure you have Xcode and the iOS SDK(s) installed. Xcode version 5.1 is
+  recommended as earlier versions of Xcode are limited in which version of iOS
+  they can test against. See the next section for more detail.
 * You need to authorize use of the iOS Simulator. If you are running Appium
   from NPM, you'll do this by running `sudo authorize_ios` (`authorize_ios` is
   a binary made available by the Appium npm package). If you're running Appium
@@ -18,10 +17,13 @@ Appium on OS X supports iOS and Android testing.
 
 ### Testing against multiple iOS SDKs
 
-Apple's `instruments` binary, which Appium uses to launch the iOS simulator, by
-default uses the currently-selected Xcode, and the highest iOS SDK installed
-with that version of Xcode. This means that if you want to test iOS 6.1, but
-have iOS 7.1 installed, Appium will be forced to use the 7.1 Simulator
+Xcode version 5.1 allows for automatic testing against iOS versions 6.0 and later.
+If using version 5.1, you can ignore the rest of this section.
+
+For Xcode 4.6.3 to 5.0, Apple's `instruments` binary, which Appium uses to launch
+the iOS simulator, by default uses the currently-selected Xcode, and the highest
+iOS SDK installed with that version of Xcode. This means that if you want to test
+iOS 6.1, but have iOS 7.1 installed, Appium will be forced to use the 7.1 Simulator
 regardless. The only way around this is to have multiple copies of Xcode
 installed with different sets of SDKs. You can then switch to the particular
 copy of Xcode that has the versions you want to test with before starting
@@ -30,7 +32,7 @@ Appium.
 In addition, it's been discovered that testing against iOS 6.1 with Xcode
 5 causes increased slowness and instability, so it's recommended that for
 testing against iOS 6.1 and below we use Xcode 4.6.3, and for testing against
-iOS 7.0 we use Xcode 5.We can do this by, say, having Xcode 5 at
+iOS 7.0 we use Xcode 5. We can do this by, say, having Xcode 5 at
 `/Applications/Xcode.app`, and Xcode 4.6 and `/Applications/Xcode-4.6.app`.
 Then we use the following command:
 
@@ -44,29 +46,5 @@ To go back to iOS 7.1 testing.
 
 ### System setup (Android)
 
-* Make sure you have the
-  [Android SDK installed](http://developer.android.com/sdk/index.html).
-* Make sure you have Android SDK API &gt;= 17 installed. To do this, run the
-  Android SDK Manager (`android`) and select the API in the extra packages you
-  can install.
-* Make sure you have `ant` installed. Ant is used to build the Appium bootstrap
-  jar as well as the test applications. Mac OS X Mavericks no longer comes
-  pre-packaged with `ant` so you will need to
-  [download and install it](http://ant.apache.org/bindownload.cgi).
-* Make sure you have exported `$ANDROID_HOME`, containing your Android sdk
-  path. If you unzipped the Android SDK to `/usr/local/adt/`, for example, you
-  should add this to your shell startup:
-
-        export ANDROID_HOME="/usr/local/adt/sdk"
-
-* Make sure you have [Maven 3.1.1](http://maven.apache.org/download.cgi)
-  or newer installed (`mvn`). We need Maven for Selendroid support,
-  which helps Appium run on Android versions below 4.2.
-* Make sure you have an AVD set to a recent Android version (one that can run
-  UIAutomator. Just choose the latest Android OS). You can create an AVD by
-  using the android SDK tools. Remember the name you give the AVD, so that you
-  can launch an emulator with it and run tests against it.
-* Make sure that `hw.battery=yes` in your AVD's `config.ini`.
-* There exists a hardware accelerated emulator for android, it has its own
-  limitations. For more information you can check out this
-  [page](android-hax-emulator.md).
+Instructions for setting up Android and running tests on Mac OS X are the same as
+those on Linux. See the [Android setup docs](/docs/en/appium-setup/android-setup.md).

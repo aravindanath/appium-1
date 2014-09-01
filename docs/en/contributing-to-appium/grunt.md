@@ -8,6 +8,7 @@ kinds of appium dev tasks. Here's what you can do:
 |grunt lint|Run JSLint|
 |grunt test|Run the unit tests|
 |grunt unit|Run the unit tests|
+|grunt getSampleCode|Download sample code and apps. Accepts `:hardcore` parameter|
 |grunt buildApp:&lt;AppName&gt;:&lt;SDK&gt;|Build an iOS app for the iPhone Simulator.  Expects there to be a .app at `sample-code/apps/<AppName>/build/Release-iphonesimulator/<AppName>.app`. Default SDK is 'iphonesimulator7.1'|
 |grunt signApp:&lt;certName&gt;|Signs the test app with an absolute path to an iOS dev certificate|
 |grunt authorize|Authorize your simulator to run without prompting|
@@ -26,6 +27,6 @@ kinds of appium dev tasks. Here's what you can do:
 
 By default, `grunt buildApp` builds apps using the iPhone 7.1 simulator SDK.
 You can overwrite the simulator by passing another SDK to grunt (to figure out
-which SDKs you have available, try `xcodebuild -showsdks`:
+which SDKs you have available, try running `xcodebuild -showsdks`):
 
     > grunt buildApp:UICatalog:iphonesimulator6.1

@@ -4,17 +4,17 @@ Appium 1.0 has removed a number of deprecated features from the previous version
 
 ### New client libraries
 
-The biggest thing you need to worry about is using the new Appium client libraries instead of the vanilla WebDriver clients you are currently using. Visit the [Appium client list](appium-clients.md) to find the client for your language. Downloads and instructions for integrating into your code are available on the individual client websites.
+The biggest thing you need to worry about is using the new Appium client libraries instead of the vanilla WebDriver clients you are currently using. Visit the [Appium client list](/docs/en/about-appium/appium-clients.md) to find the client for your language. Downloads and instructions for integrating into your code are available on the individual client websites.
 
 Ultimately, you'll be doing something like (to use Python as an example):
 
-```
+```center
 from appium import webdriver
 ```
 
 Instead of:
 
-```
+```center
 from selenium import webdriver
 ```
 
@@ -49,13 +49,13 @@ We have now added the `accessibility_id` strategy to do what `name` used to do. 
 
 Note about `class name` and `xpath` strategies: these now require the fully-qualified class name for your element. This means that if you had an xpath selector that looked like this:
 
-```
+```center
 //table/cell/button
 ```
 
 It would now need to be:
 
-```
+```center
 //UIATableView/UIATableCell/UIAButton
 ```
 

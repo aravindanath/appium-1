@@ -55,6 +55,52 @@ module.exports.startAppium = function (appName, verbose, readyCb, doneCb) {
   );
 };
 
+var execWithOutput = function (cmd, cb) {
+  exec(cmd, function (err, stdout, stderr) {
+    if (err) {
+      console.error("Command failed");
+      console.error("stdout:");
+      console.error(stdout);
+      console.error("stderr:");
+      console.error(stderr);
+    }
+    cb(err, stdout, stderr);
+  });
+};
+
+module.exports.getSampleCode = function (grunt, hardcore, cb) {
+  var submodulesDir = path.resolve(__dirname, "submodules");
+  var sampleCodeGit = path.resolve(submodulesDir, "sample-code");
+  var sampleCodeDir = path.resolve(__dirname, "sample-code");
+  var sampleCodeExists = fs.existsSync(sampleCodeDir);
+  var updateCmd = "git submodule update --init " + sampleCodeGit;
+  console.log("Cloning/updating Appium sample-code submodule");
+  execWithOutput(updateCmd, function (err, stdout, stderr) {
+    if (err) return cb(err);
+    var updated = false;
+    if (stdout + stderr !== "") {
+      // there were submodule updates
+      console.log("There were updates to the submodule");
+      updated = true;
+    }
+    if (hardcore || updated) {
+      console.log("Removing old sample-code");
+      console.log("Please remember to rebuild test apps");
+      rimraf.sync(sampleCodeDir);
+    }
+    if (hardcore || updated || !sampleCodeExists) {
+      console.log("Copying sample-code out for use");
+      ncp(path.resolve(sampleCodeGit, "sample-code"), sampleCodeDir, function (err) {
+        if (err) return cb(err);
+        console.log("Test apps are ready for building");
+        cb();
+      });
+    } else {
+      console.log("Sample code was not updated, doing nothing");
+    }
+  });
+};
+
 module.exports.runTestsWithServer = function (grunt, appName, testType, deviceType, verbose, cb) {
   if (typeof verbose === "undefined") {
     verbose = false;
@@ -347,14 +393,14 @@ module.exports.setupAndroidBootstrap = function (grunt, cb) {
   var projPath = path.resolve(__dirname, "lib", "devices", "android",
       "bootstrap");
   var args = ["create", "uitest-project", "-n", "AppiumBootstrap", "-t",
-              "android-18", "-p", "."];
-  // TODO: possibly check output of `android list target` to make sure api level 18 is available?
+              "android-19", "-p", "."];
+  // TODO: possibly check output of `android list target` to make sure api level 19 is available?
   setupAndroidProj(grunt, projPath, args, cb);
 };
 
 module.exports.setupAndroidApp = function (grunt, appName, cb) {
   var appPath = path.resolve(__dirname, "sample-code", "apps", appName);
-  var args = ["update", "project", "--subprojects", "-t", "android-18", "-p", ".", "-n", appName];
+  var args = ["update", "project", "--subprojects", "-t", "android-19", "-p", ".", "-n", appName];
   setupAndroidProj(grunt, appPath, args, cb);
 };
 
@@ -374,6 +420,9 @@ var buildAndroidProj = function (grunt, projPath, target, cb) {
     } else {
       if (stdout) {
         var cmd = stdout.split('\r\n')[0].trim();
+        if (isWindows && cmdName === 'ant') {
+          cmd = cmd + '.bat';
+        }
         grunt.log.write("Using " + cmdName + " found at " + cmd + "\n");
         var proc = spawn(cmd, [target], {cwd: projPath});
         proc.on("error", function () {

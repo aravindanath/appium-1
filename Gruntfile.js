@@ -19,6 +19,7 @@ var path = require('path')
   , generateAppiumIo = gruntHelpers.generateAppiumIo
   , setDeviceConfigVer = gruntHelpers.setDeviceConfigVer
   , setBuildTime = gruntHelpers.setBuildTime
+  , getSampleCode = gruntHelpers.getSampleCode
   , setGitRev = gruntHelpers.setGitRev
   , getGitRev = require('./lib/helpers').getGitRev;
 
@@ -71,7 +72,7 @@ module.exports = function (grunt) {
       }
     }
   , jscs: {
-    src: [
+    files: [
       '**/*.js', '!submodules/**', '!node_modules/**',
       '!lib/server/static/**', '!lib/devices/firefoxos/atoms/*.js',
       '!test/harmony/**/*.js', '!sample-code/examples/node/**/*-yiewd.js',
@@ -93,10 +94,11 @@ module.exports = function (grunt) {
   , maxBuffer: 2000 * 1024
   });
 
+  grunt.loadNpmTasks('grunt-newer');
   grunt.loadNpmTasks('grunt-mocha-test');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-jscs-checker");
-  grunt.registerTask('lint', ['jshint','jscs']);
+  grunt.registerTask('lint', ['newer:jshint','jscs']);
   grunt.registerTask('test', 'mochaTest:unit');
   grunt.registerTask('unit', 'mochaTest:unit');
   grunt.registerTask('default', ['test']);
@@ -153,6 +155,12 @@ module.exports = function (grunt) {
   });
   grunt.registerTask('setBuildTime', function () {
     setBuildTime(grunt, this.async());
+  });
+  grunt.registerTask('getSampleCode', function (hardcore) {
+    if (typeof hardcore !== "undefined" && hardcore === "hardcore") {
+      hardcore = true;
+    }
+    getSampleCode(grunt, hardcore, this.async());
   });
   grunt.registerTask('setGitRev', function (rev) {
     var done = this.async();

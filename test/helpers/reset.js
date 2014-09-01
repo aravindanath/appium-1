@@ -20,8 +20,13 @@ exports.iosReset = function () {
   if (env.VERBOSE) console.log('Resetting ios simulator.');
   return exec('pkill -9 -f iPhoneSimulator')
     .catch(function () {})
-    .then(function () { return exec('pkill -9 -f instruments'); })
+    .then(function () { return exec('pkill -9 -f "instruments$"'); })
     .catch(function () {})
     .then(function () { return exec('rm -rf $HOME/Library/Application\\ Support/iPhone\\ Simulator'); })
     .catch(function () {});
+};
+
+
+exports.androidReboot = function (adb) {
+  return Q.denodeify(adb.reboot.bind(adb));
 };

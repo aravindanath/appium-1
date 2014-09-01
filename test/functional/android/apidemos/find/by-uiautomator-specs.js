@@ -21,8 +21,8 @@ describe("apidemo - find elements - by uiautomator", function () {
           .then(function (els) {
             els.length.should.be.above(0);
             els.length.should.be.below(3);
-        }).nodeify(done);
-      });
+        });
+      }).nodeify(done);
   });
   it('should find elements without prepending "new UiSelector()"', function (done) {
     driver.elementsByAndroidUIAutomator('.clickable(true)').then(function (els) {
@@ -66,7 +66,7 @@ describe("apidemo - find elements - by uiautomator", function () {
     }).nodeify(done);
   });
   it('should find an element with a long chain of methods', function (done) {
-    driver.elementByAndroidUIAutomator('new UiSelector().clickable(true).className(android.widget.TextView).index(0)').text().then(function (text) {
+    driver.elementByAndroidUIAutomator('new UiSelector().clickable(true).className(android.widget.TextView).index(1)').text().then(function (text) {
       text.should.equal('Accessibility');
     }).nodeify(done);
   });
@@ -140,14 +140,14 @@ describe("apidemo - find elements - by uiautomator", function () {
     }).nodeify(done);
   });
   it('should scroll to, and return elements using UiScrollable', function (done) {
-    driver.elementByAndroidUIAutomator('new UiScrollable(new UiSelector().scrollable(true).instance(0)).getChildByText(new UiSelector().className("android.widget.TextView"), "Views")')
+    driver.elementByAndroidUIAutomator('new UiScrollable(new UiSelector().scrollable(true).instance(0)).scrollIntoView(new UiSelector().text("Views").instance(0))')
     .text()
     .then(function (text) {
       text.should.equal("Views");
     }).nodeify(done);
   });
   it('should allow chaining UiScrollable methods', function (done) {
-    driver.elementByAndroidUIAutomator('new UiScrollable(new UiSelector().scrollable(true).instance(0)).setMaxSearchSwipes(10).getChildByText(new UiSelector().className("android.widget.TextView"), "Views")')
+    driver.elementByAndroidUIAutomator('new UiScrollable(new UiSelector().scrollable(true).instance(0)).setMaxSearchSwipes(10).scrollIntoView(new UiSelector().text("Views").instance(0))')
     .text()
     .then(function (text) {
       text.should.equal("Views");

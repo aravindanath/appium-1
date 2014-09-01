@@ -46,7 +46,7 @@ driver
 
 ```java
 // java
-// assuming we have an initialized `driver` object for an app
+// assuming we have a set of capabilities
 driver = new AppiumDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
 
 Set<String> contextNames = driver.getContextHandles();
@@ -67,7 +67,7 @@ driver.quit();
 
 ```ruby
 # ruby
-# assuming we have an initialized `driver` object for an app
+# assuming we have a set of capabilities
 @driver = Selenium::WebDriver.for(:remote, :desired_capabilities => capabilities, :url => SERVER_URL)
 
 # I switch to the last window because its always the webview in our case, in other cases you may need to specify a window number
@@ -123,7 +123,7 @@ public function testThings()
 		$contexts = $this->contexts();
 		$this->assertEquals($expected_contexts, $contexts);
 
-		$this->context('WEBVIEW_1');
+		$this->context($contexts[1]);
 		$context = $this->context();
 		$this->assertEquals('WEBVIEW_1', $context);
 
@@ -165,7 +165,7 @@ connection we use the [ios-webkit-debugger-proxy](https://github.com/google/ios-
 To install the latest tagged version of the ios-webkit-debug-proxy using
 brew, run the following commands in the terminal:
 
-``` bash
+``` center
 # The first command is only required if you don't have brew installed.
 > ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go/install)"
 > brew update
@@ -175,7 +175,7 @@ brew, run the following commands in the terminal:
 You can also install the latest proxy by cloning it from git and installing
 it yourself:
 
-``` bash
+``` center
 # Please be aware that this will install the proxy with the latest code (and not a tagged version).
 > git clone https://github.com/google/ios-webkit-debug-proxy.git
 > cd ios-webkit-debug-proxy
@@ -187,7 +187,7 @@ it yourself:
 
 Once installed you can start the proxy with the following command:
 
-``` bash
+``` center
 # Change the udid to be the udid of the attached device and make sure to set the port to 27753
 # as that is the port the remote-debugger uses.
 > ios_webkit_debug_proxy -c 0e4b2f612b65e98c1d07d22ee08678130d345429:27753 -d
