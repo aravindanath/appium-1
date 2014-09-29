@@ -189,13 +189,11 @@ reset_ios() {
         if $ios7_active ; then
             if $hardcore ; then
                 echo "* Clearing out old UICatalog download"
-                run_cmd rm -rf ./sample-code/apps/UICatalog*
+                run_cmd rm -rf ./sample-code/apps/UICatalog/
             fi
             if [ ! -d "./sample-code/apps/UICatalog" ]; then
-                echo "* Downloading UICatalog app source"
-                run_cmd curl -L https://developer.apple.com/library/ios/samplecode/UICatalog/UICatalog.zip -o ./sample-code/apps/UICatalog.zip
-                run_cmd pushd ./sample-code/apps
                 echo "* Unzipping UICatalog app source"
+                run_cmd pushd ./sample-code/apps
                 run_cmd unzip UICatalog.zip
                 run_cmd popd
             fi
@@ -248,7 +246,8 @@ reset_ios() {
     run_cmd popd
     echo "* Copying deviceconsole to build"
     run_cmd rm -rf build/deviceconsole
-    run_cmd cp -r submodules/deviceconsole build/deviceconsole
+    run_cmd mkdir -p build/deviceconsole
+    run_cmd cp -r submodules/deviceconsole/deviceconsole build/deviceconsole/deviceconsole
 }
 
 get_apidemos() {
@@ -395,7 +394,7 @@ reset_selendroid_quick() {
     run_cmd pushd /tmp/appium/selendroid
     echo "* Downloading metatata"
     run_cmd wget http://search.maven.org/remotecontent?filepath=io/selendroid/selendroid-standalone/maven-metadata.xml -O maven-metadata.xml
-    selendroid_version=$(grep latest maven-metadata.xml | sed 's/ *<\/*latest\> *//g')
+    selendroid_version=$(grep latest maven-metadata.xml | sed 's/ *<\/*latest> *//g')
     echo "* Selendroid version is ${selendroid_version}"
     echo "* Downloading selendroid server"
     run_cmd wget https://github.com/selendroid/selendroid/releases/download/${selendroid_version}/selendroid-standalone-${selendroid_version}-with-dependencies.jar

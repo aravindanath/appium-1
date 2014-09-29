@@ -30,10 +30,10 @@ env:
   - LAUNCH_TIMEOUT='{"global":90000,"afterSimLaunch":30000}'
   matrix:
   - CI_CONFIG=unit
-  - CI_CONFIG=android
-  - CI_CONFIG=ios
-  - CI_CONFIG=gappium
-  - CI_CONFIG=selendroid
+  # - CI_CONFIG=android
+  # - CI_CONFIG=ios
+  # - CI_CONFIG=gappium
+  # - CI_CONFIG=selendroid
 before_script:
 - gem install --no-rdoc --no-ri appium_doc_lint
 - "./ci/installers/install-node.sh"
@@ -41,7 +41,7 @@ before_script:
 - npm install -g jshint grunt-cli mocha
 - npm install
 - "./ci/installers/install-sauce-connect.sh"
-- "./ci/before_script_extra.sh"
+- "./ci/before-script-extra.sh"
 - "ulimit -n 8000"
 # disabling sauce-connect until travis ichef issue is sorted
 # - "./ci/start-sauce-connect.sh"

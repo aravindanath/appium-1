@@ -11,6 +11,7 @@ var env = require('../../../helpers/env')
   , chai = require('chai')
   , should = chai.should()
   , spawn = require('child_process').spawn
+  , appPathBase = require('../app-path-base.js')
   , _ = require('underscore')
   , ChaiAsserter = require('../../../helpers/asserter.js').ChaiAsserter
   , getAppPath = require('../../../helpers/app').getAppPath
@@ -128,7 +129,28 @@ describe("apidemo - basic @skip-ci", function () {
         })
         .nodeify(done);
     });
+  });
 
+  describe('at any time', function () {
+    var driver;
+    setup(this, desired)
+      .then(function (d) { driver = d; });
+
+    it('should open an activity in this application', function (done) {
+      driver
+        .startActivity({appPackage: "io.appium.android.apis", appActivity: ".accessibility.AccessibilityNodeProviderActivity"})
+        .getCurrentActivity()
+        .should.eventually.include("Node")
+        .nodeify(done);
+    });
+
+    it('should open an activity in another application', function (done) {
+      driver
+        .startActivity({appPackage: "com.android.contacts", appActivity: ".ContactsListActivity"})
+        .getCurrentActivity()
+        .should.eventually.include("Contact")
+        .nodeify(done);
+    });
   });
 
   describe('with fastReset', function () {
@@ -199,6 +221,8 @@ describe("apidemo - basic @skip-ci", function () {
         }).nodeify(done);
       });
     });
+
+    describe('app path with spaces', _.partial(appPathBase.spacesTest, desired));
   });
 
   describe('pre-existing uiautomator session', function () {
