@@ -5,6 +5,8 @@ ios_only=false
 ios6_only=false
 ios7_only=false
 ios71_only=false
+ios8_only=false
+ios81_only=false
 android_only=false
 android_chrome=false
 selendroid_only=false
@@ -42,6 +44,12 @@ for arg in "$@"; do
         all_tests=false
     elif [ "$arg" = "--ios71" ]; then
         ios71_only=true
+        all_tests=false
+    elif [ "$arg" = "--ios8" ]; then
+        ios8_only=true
+        all_tests=false
+    elif [ "$arg" = "--ios81" ]; then
+        ios81_only=true
         all_tests=false
     elif [ "$arg" = "--no-xcode-switch" ]; then
         xcode_switch=false
@@ -84,7 +92,15 @@ if $ios7_only || $all_tests; then
 fi
 
 if $ios71_only || $all_tests; then
-    run_ios_tests "7.1" "ios71" "@skip-ios71|@skip-ios7|@skip-ios-all"
+    run_ios_tests "7.1" "ios71" "@skip-ios71|@skip-ios7|@skip-ios-all|@skip-ios7up"
+fi
+
+if $ios8_only || $all_tests; then
+    run_ios_tests "8.0" "ios8" "@skip-ios8|@skip-ios-all|@skip-ios7up"
+fi
+
+if $ios81_only || $all_tests; then
+    run_ios_tests "8.1" "ios81" "@skip-ios81|@skip-ios8|@skip-ios-all|@skip-ios7up"
 fi
 
 if $did_switch_xcode; then
@@ -135,11 +151,13 @@ if $gappium_only || $all_tests; then
     echo "RUNNING GAPPIUM TESTS"
     echo "---------------------"
     DEVICE=ios71 time $appium_mocha test/functional/gappium
-    DEVICE=ios6 time $appium_mocha test/functional/gappium
+    # disabling, ios6 not working yet xcode 6
+    #DEVICE=ios6 time $appium_mocha test/functional/gappium
     echo "Start the android emulator api 19 and press Enter."
     read
     DEVICE=android time $appium_mocha test/functional/gappium
-    echo "Start the android emulator api 16 and press Enter."
-    read
-    DEVICE=selendroid time $appium_mocha test/functional/gappium
+    # disabling gappium test, see https://github.com/selendroid/selendroid/issues/658
+    #echo "Start the android emulator api 16 and press Enter."
+    #read
+    #DEVICE=selendroid time $appium_mocha test/functional/gappium
 fi

@@ -19,6 +19,21 @@ describe("apidemo - find - by xpath", function () {
     driver.sleep(2000).nodeify(done);
   });
 
+  it('should throw with status 7 when matching nothing', function (done) {
+    driver
+      .elementByXPath('//whatthat')
+      .should.be.rejectedWith(/status: 7/)
+      .nodeify(done);
+  });
+
+  it('should throw with status 7 for hierarchy root', function (done) {
+    driver
+      .elementByXPath('/*')
+      .should.be.rejectedWith(/status: 7/)
+      .nodeify(done);
+  });
+
+
   it('should find element by type', function (done) {
     driver
       .elementByXPath('//' + t).text()
@@ -29,6 +44,16 @@ describe("apidemo - find - by xpath", function () {
     driver
       .elementByXPath("//" + t + "[@text='Accessibility']").text()
         .should.become("Accessibility")
+      .nodeify(done);
+  });
+  // This test verifies a specific XPath issue has been resolved.
+  // https://github.com/appium/appium/pull/3730
+  it('should find exactly one element via elementsByXPath', function (done) {
+    driver
+      .elementsByXPath("//" + t + "[@text='Accessibility']").then(function (els) {
+        els.length.should.equal(1);
+        els[0].text().should.become("Accessibility");
+      })
       .nodeify(done);
   });
   it('should find element by partial text', function (done) {

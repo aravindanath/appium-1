@@ -26,7 +26,7 @@
 
 |Capability|Description|Values|
 |----|-----------|-------|
-|`appActivity`| Activity name for the Android activity you want to launch from your package|`MainActivity`, `.Settings`|
+|`appActivity`| Activity name for the Android activity you want to launch from your package. This often needs to be preceded by a `.` (e.g., `.MainActivity` instead of `MainActivity`)|`MainActivity`, `.Settings`|
 |`appPackage`| Java package of the Android app you want to run|`com.example.android.myApp`, `com.android.settings`|
 |`appWaitActivity`| Activity name for the Android activity you want to wait for|`SplashActivity`|
 |`appWaitPackage`| Java package of the Android app you want to wait for|`com.example.android.myApp`, `com.android.settings`|
@@ -78,3 +78,4 @@
 |`processArguments`| Arguments to pass to the AUT using instruments|e.g., `-myflag`|
 |`interKeyDelay`| The delay, in ms, between keystrokes sent to an element when typing.|e.g., `100`|
 |`showIOSLog`| Whether to show any logs captured from a device in the appium logs. Default `false`|`true` or `false`|
+|`sendKeyStrategy`| strategy to use to type test into a test field. Simulator default: `oneByOne`. Real device default: 'grouped' |`oneByOne`, `grouped` or setValue|
