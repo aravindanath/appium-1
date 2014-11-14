@@ -1,3 +1,101 @@
+
+CHANGES IN VERSION 1.3.2-beta1 (from 1.3.1)
+======================================
+#### General
+- fix several internal Appium tests
+- add a sendKeyStrategy capability to allow testers to enable less reliable, but faster sendKey method
+- add handling for safeRimRafSync ENOENT mesages
+- clean up sessions when session clobbering enabled
+
+#### iOS
+- fix issue where driver.current_context is `null` for native app context
+- fix bug that prevents closing tabs in Safari
+- fix log capture when Appium starts a simulator for the first time
+- add OSX 10.10 and iOS8 support for Appium Doctor
+
+#### Android
+- fix arg and cap parsing when passing arguments to adb
+- add support for passing elements as targets for swipe actions
+- correctly calculate relative position of swipe targets
+
+#### Selendroid
+- add comment to caps page, and to running tests page, to note the need for a period before an activity
+
+CHANGES IN VERSION 1.3.1 (from 1.3.0)
+=====================================
+
+#### iOS
+- fixed a bug where appium could hang if the 'full-reset' and 'keepKeychain' capabilities were both used on ios8.1
+- default context now set to `NATIVE_APP` instead of being null
+
+#### Android
+- fix bugs which arise from spaces in the path to `adb` tool
+- fix detection of whether the screen is locked
+- fix an error with running remote apk's on Windows
+
+CHANGES IN VERSION 1.3.0 (from 1.2.4)
+======================================
+#### General
+- allow `full-reset` desired capability to work alongside `language`/`locale` desired capabilities
+
+#### iOS
+- add iOS 8 support
+- add support for launching an app on the sim just by bundleId (iOS8 only)
+- ensure screenshot process uses dir specified in --tmp
+- add --isolate-sim-device which removes all other xcode 6 simulators
+  before running test (might be necessary for some platforms)
+- update mobile safari temp app to include platformVersion so we don't get
+  strange version conflicts
+- reset push notification privacy settings in between sessions
+- fix the flakiness of getting a list of available devices
+- auto-refresh Safari if no webviews are found
+- rewrite cookie handling code to use code derived from jQuery instead of mozilla docCookie
+- force device string when device name starts with "="
+- fix a security hole in pullFile() where users could download files on the machine hosting appium
+
+#### Android
+- fix Chromedriver to work with newer versions
+- Chromedriver will work if adb is not running on default port
+- speed up clearing text fields when there is hint text
+
+#### Selendroid
+- fix sendKeys() in CHROMIUM context
+- fix getContexts()
+
+CHANGES IN VERSION 1.3.0-beta1 (from 1.2.3)
+======================================
+
+#### General
+- add objective-c examples
+
+#### iOS
+- update appium-instruments with logging fixes
+- add iOS 8 support
+- add support for launching an app on the sim just by bundleId (iOS8 only)
+- ensure screenshot process uses dir specified in --tmp
+- add --isolate-sim-device which removes all other xcode 6 simulators
+  before running test (might be necessary for some platforms)
+- update mobile safari temp app to include platformVersion so we don't get
+  strange version conflicts
+- reset push notification privacy settings in between sessions
+
+
+CHANGES IN VERSION 1.2.4 (from 1.2.3)
+======================================
+
+#### General
+- add objective-c examples
+
+#### iOS
+- update appium-instruments with logging fixes
+- update appium-instruments with getDevices stalling fix
+
+#### Android
+- give better error for UiScrollable parse exception
+- fix UiSelector instance in finds
+- use last coordinates for touch release
+
+
 CHANGES IN VERSION 1.2.3 (from 1.2.2)
 ======================================
 
@@ -200,7 +298,7 @@ CHANGES IN VERSION 1.1.0 (from 1.0.0)
 - less buggy xcode locator strategy for iOS and Android
   - note that for Android this might cause previous xpath selectors not to
     work, since we now always set compressed hierarchy when getting the xml
-	dump used for xpath
+dump used for xpath
 - fix defaults for swipe duration
 - add fixes for context switching
 - add optional argument 'language' to getStrings

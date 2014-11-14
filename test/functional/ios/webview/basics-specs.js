@@ -11,18 +11,12 @@ describe('webview - basics', function () {
 
   setup(this, desired).then(function (d) { driver = d; });
 
-  it('getting current context should return null when none set', function (done) {
-    driver.currentContext().should.eventually.equal(null)
+  it('getting current context should return NATIVE_APP when none set', function (done) {
+    driver.currentContext().should.eventually.equal("NATIVE_APP")
       .nodeify(done);
   });
   it('getting list should work after webview open', function (done) {
     driver.contexts().should.eventually.have.length.above(0)
-      .nodeify(done);
-  });
-  it('getting list twice should not crash appium', function (done) {
-    driver
-      .contexts().should.eventually.have.length.above(0)
-      .contexts().should.eventually.have.length.above(0)
       .nodeify(done);
   });
   it('getting list multiple times should not crash appium', function (done) {
