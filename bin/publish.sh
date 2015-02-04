@@ -48,9 +48,17 @@ fi
 set -e
 echo "Getting latest from upstream:$branch"
 git pull upstream $branch
-./reset.sh --hardcore --real-safari --chromedriver-install-all --chromedriver-version 2.10
-npm cache clear appium
-npm publish
+echo "Resetting"
+./reset.sh --hardcore --real-safari --chromedriver-install-all --chromedriver-version 2.14
 version=$(cat package.json | $(npm bin)/underscore extract version | sed 's/\"//g')
+echo "Clearing npm cache"
+npm cache clear appium
+echo "Publishing on npm"
+if [[ "$version" =~ "beta" ]]; then
+    npm publish --tag beta
+else
+    npm publish
+fi
+echo "Git tagging"
 git tag -a "v$version" -m "tag appium@$version for npm publish"
 git push --tags upstream $branch

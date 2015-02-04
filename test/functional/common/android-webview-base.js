@@ -21,11 +21,7 @@ module.exports = function () {
   before(function (done) {
     driver
       .waitForElementByClassName('android.webkit.WebView')
-      .contexts()
-      .then(function (ctxs) {
-        ctxs.should.have.length(2);
-        return driver.context(ctxs[ctxs.length - 1]);
-      })
+      .firstWebContext()
       .nodeify(done);
   });
 
@@ -35,8 +31,7 @@ module.exports = function () {
       .nodeify(done);
   });
 
-  // skip until Selendroid implements context methods
-  it('should raise NoSuchContext (status: 35) @skip-selendroid-all', function (done) {
+  it('should raise NoSuchContext (status: 35)', function (done) {
     driver
       .context('WEBVIEW_42')
       .should.be.rejectedWith(/status: 35/)
@@ -96,17 +91,14 @@ module.exports = function () {
       .elementById('i_am_a_textbox')
         .should.be.rejectedWith("status: 7")
       // go back into the webview
-      .contexts()
-      .then(function (ctxs) {
-        return driver.context(ctxs[ctxs.length - 1]);
-      })
+      .firstWebContext()
       // should find the element in the web context
       .elementById('i_am_a_textbox')
         .should.not.be.rejected
       .nodeify(done);
   });
 
-  it('should be able to get into a webview even after the webview ChromeDriver has is closed', function (done) {
+  it('should be able to get into a webview even after the webview ChromeDriver has is closed @skip-selendroid-all', function (done) {
     driver
       .context('WEBVIEW')
       .elementById('i_am_a_textbox')
