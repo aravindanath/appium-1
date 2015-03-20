@@ -7,6 +7,7 @@ ios7_only=false
 ios71_only=false
 ios8_only=false
 ios81_only=false
+ios82_only=false
 android_only=false
 android_chrome=false
 selendroid_only=false
@@ -50,6 +51,9 @@ for arg in "$@"; do
         all_tests=false
     elif [ "$arg" = "--ios81" ]; then
         ios81_only=true
+        all_tests=false
+    elif [ "$arg" = "--ios82" ]; then
+        ios82_only=true
         all_tests=false
     elif [ "$arg" = "--no-xcode-switch" ]; then
         xcode_switch=false
@@ -103,6 +107,10 @@ if $ios81_only || $all_tests; then
     run_ios_tests "8.1" "ios81" "@skip-ios81|@skip-ios8|@skip-ios-all|@skip-ios7up"
 fi
 
+if $ios82_only || $all_tests; then
+    run_ios_tests "8.2" "ios82" "@skip-ios82|@skip-ios81|@skip-ios8|@skip-ios-all|@skip-ios7up"
+fi
+
 if $did_switch_xcode; then
     echo "Switching back to default Xcode ($xcode_path)"
     sudo xcode-select -switch $xcode_path
@@ -150,7 +158,7 @@ fi
 if $gappium_only || $all_tests; then
     echo "RUNNING GAPPIUM TESTS"
     echo "---------------------"
-    DEVICE=ios71 time $appium_mocha test/functional/gappium
+    DEVICE=ios81 time $appium_mocha test/functional/gappium
     # disabling, ios6 not working yet xcode 6
     #DEVICE=ios6 time $appium_mocha test/functional/gappium
     echo "Start the android emulator api 19 and press Enter."

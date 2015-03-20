@@ -2,6 +2,8 @@ package io.appium.android.bootstrap;
 
 import android.graphics.Rect;
 import android.view.MotionEvent.PointerCoords;
+import android.view.accessibility.AccessibilityNodeInfo;
+import com.android.uiautomator.core.Configurator;
 import com.android.uiautomator.core.UiObject;
 import com.android.uiautomator.core.UiObjectNotFoundException;
 import com.android.uiautomator.core.UiSelector;
@@ -10,8 +12,8 @@ import io.appium.android.bootstrap.exceptions.NoAttributeFoundException;
 import io.appium.android.bootstrap.utils.Point;
 import io.appium.android.bootstrap.utils.UnicodeEncoder;
 
-import java.lang.reflect.Method;
-
+import static io.appium.android.bootstrap.utils.ReflectionUtils.invoke;
+import static io.appium.android.bootstrap.utils.ReflectionUtils.method;
 import static io.appium.android.bootstrap.utils.API.API_18;
 
 /**
@@ -120,6 +122,39 @@ public class AndroidElement {
     }
   }
 
+  public String getResourceId() throws UiObjectNotFoundException {
+    String resourceId = "";
+
+    if (!API_18) {
+      Logger.error("Device does not support API >= 18!");
+      return resourceId;
+    }
+
+    try {
+      /*
+       * Unfortunately UiObject does not implement a getResourceId method.
+       * There is currently no way to determine the resource-id of a given
+       * element represented by UiObject. Until this support is added to
+       * UiAutomater, we try to match the implementation pattern that is
+       * already used by UiObject for getting attributes using reflection.
+       * The returned string matches exactly what is displayed in the
+       * UiAutomater inspector.
+       */
+      AccessibilityNodeInfo node = (AccessibilityNodeInfo) invoke( method(el.getClass(), "findAccessibilityNodeInfo", long.class),
+              el, Configurator.getInstance().getWaitForSelectorTimeout());
+
+      if (node == null) {
+        throw new UiObjectNotFoundException(el.getSelector().toString());
+      }
+
+      resourceId = node.getViewIdResourceName();
+    } catch (final Exception e) {
+      Logger.error("Exception: " + e + " (" + e.getMessage() + ")");
+    }
+
+    return resourceId;
+  }
+
   public String getContentDesc() throws UiObjectNotFoundException {
     return el.getContentDescription();
   }
@@ -140,6 +175,8 @@ public class AndroidElement {
       res = getText();
     } else if (attr.equals("className")) {
       res = getClassName();
+    } else if (attr.equals("resourceId")) {
+      res = getResourceId();
     } else {
       throw new NoAttributeFoundException(attr);
     }
@@ -210,9 +247,8 @@ public class AndroidElement {
         // version in the emulator is correct. So we cannot do:
         //   `return el.performMultiPointerGesture(touches);`
         // Instead we need to use Reflection to do it all at runtime.
-        Method method = this.el.getClass().getMethod("performMultiPointerGesture", PointerCoords[][].class);
-        Boolean rt = (Boolean)method.invoke(this.el, (Object)touches);
-        return rt;
+        return (Boolean) invoke(method(el.getClass(), "performMultiPointerGesture", PointerCoords[][].class),
+                el, (Object)touches);
       } else {
         Logger.error("Device does not support API < 18!");
         return false;

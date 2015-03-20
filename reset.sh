@@ -185,8 +185,6 @@ reset_ios() {
             run_cmd ./bin/npmlink.sh -l appium-instruments
             echo "* Cloning/npm linking appium-uiauto"
             run_cmd ./bin/npmlink.sh -l appium-uiauto
-            echo "* Cloning/npm linking appium-adb"
-            run_cmd ./bin/npmlink.sh -l appium-adb
         fi
         if $ios7_active || $ios8_active ; then
             if $hardcore ; then
@@ -223,14 +221,15 @@ reset_ios() {
         echo "* Building SafariLauncher for real devices"
         run_cmd rm -rf build/SafariLauncher
         run_cmd mkdir -p build/SafariLauncher
-        run_cmd rm -f submodules/Safarilauncher/target.xcconfig
-        echo "BUNDLE_ID = com.bytearc.SafariLauncher" >> submodules/Safarilauncher/target.xcconfig
+        run_cmd rm -f submodules/SafariLauncher/target.xcconfig
+        touch submodules/SafariLauncher/target.xcconfig
+        echo "BUNDLE_ID = com.bytearc.SafariLauncher" >> submodules/SafariLauncher/target.xcconfig
         if [[ ! -z $code_sign_identity ]]; then
-          echo "IDENTITY_NAME = " $code_sign_identity >> submodules/Safarilauncher/target.xcconfig
+          echo "IDENTITY_NAME = " $code_sign_identity >> submodules/SafariLauncher/target.xcconfig
         else
-          echo "IDENTITY_NAME = iPhone Developer" >> submodules/Safarilauncher/target.xcconfig
+          echo "IDENTITY_NAME = iPhone Developer" >> submodules/SafariLauncher/target.xcconfig
         fi
-        echo "IDENTITY_CODE = " $provisioning_profile >> submodules/Safarilauncher/target.xcconfig
+        echo "IDENTITY_CODE = " $provisioning_profile >> submodules/SafariLauncher/target.xcconfig
         run_cmd "$grunt" buildSafariLauncherApp:iphoneos:"target.xcconfig"
         echo "* Copying SafariLauncher for real devices to build"
         run_cmd zip -r build/SafariLauncher/SafariLauncher submodules/SafariLauncher/build/Release-iphoneos/SafariLauncher.app
@@ -299,22 +298,6 @@ reset_toggle_test() {
     toggletest_reset=true
 }
 
-reset_gps_demo() {
-    if $hardcore ; then
-        echo "* Removing previous copies of the gps demo"
-        run_cmd rm -rf sample-code/apps/gps-demo
-        run_cmd rm -rf sample-code/apps/gps-demo.zip
-    fi
-    if [ ! -d sample-code/apps/gps-demo ]; then
-        echo "* Downloading gps demo"
-        run_cmd pushd sample-code/apps
-        run_cmd curl http://www.impressive-artworx.de/tutorials/android/gps_tutorial_1.zip -o gps-demo.zip -s
-        run_cmd unzip gps-demo.zip
-        run_cmd mv GPSTutorial1 gps-demo
-        run_cmd popd
-    fi
-}
-
 reset_unlock_apk() {
     if ! $has_reset_unlock_apk; then
         run_cmd rm -rf build/unlock_apk
@@ -362,6 +345,11 @@ reset_settings_apk() {
     fi
 }
 
+link_appium_adb() {
+    echo "* Cloning/npm linking appium-adb"
+    run_cmd ./bin/npmlink.sh -l appium-adb
+}
+
 reset_android() {
     echo "RESETTING ANDROID"
     require_java
@@ -376,7 +364,9 @@ reset_android() {
     if $include_dev ; then
         reset_apidemos
         reset_toggle_test
-        reset_gps_demo
+        if $npmlink ; then
+            link_appium_adb
+        fi
     fi
     echo "* Setting Android config to Appium's version"
     run_cmd "$grunt" setConfigVer:android
@@ -400,12 +390,17 @@ reset_selendroid_quick() {
     echo "* Selendroid version is ${selendroid_version}"
     echo "* Downloading selendroid server"
     run_cmd wget https://github.com/selendroid/selendroid/releases/download/${selendroid_version}/selendroid-standalone-${selendroid_version}-with-dependencies.jar
-    run_cmd jar xf selendroid-standalone-${selendroid_version}-with-dependencies.jar AndroidManifest.xml  prebuild/selendroid-server-${selendroid_version}.apk
+    ANDROID_MANIFEST=$(jar tf selendroid-standalone-0.12.0-with-dependencies.jar| grep AndroidManifest | grep -v class)
+    run_cmd jar xf selendroid-standalone-${selendroid_version}-with-dependencies.jar $ANDROID_MANIFEST prebuild/selendroid-server-${selendroid_version}.apk
+    mv $ANDROID_MANIFEST AndroidManifest.xml
     run_cmd cp /tmp/appium/selendroid/prebuild/selendroid-server-${selendroid_version}.apk "${appium_home}/build/selendroid/selendroid.apk"
     run_cmd cp /tmp/appium/selendroid/AndroidManifest.xml "${appium_home}/build/selendroid/AndroidManifest.xml"
     run_cmd popd
     run_cmd "$grunt" fixSelendroidAndroidManifest
     if $include_dev ; then
+        if $npmlink ; then
+            link_appium_adb
+        fi
         if ! $apidemos_reset; then
             reset_apidemos
             uninstall_android_app io.appium.android.apis.selendroid
@@ -449,6 +444,9 @@ reset_selendroid() {
     reset_unlock_apk
     reset_unicode_ime
     if $include_dev ; then
+        if $npmlink ; then
+            link_appium_adb
+        fi
         if ! $apidemos_reset; then
             reset_apidemos
             uninstall_android_app io.appium.android.apis.selendroid

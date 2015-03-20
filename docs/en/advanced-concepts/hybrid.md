@@ -70,9 +70,9 @@ driver.quit();
 # assuming we have a set of capabilities
 @driver = Selenium::WebDriver.for(:remote, :desired_capabilities => capabilities, :url => SERVER_URL)
 
-# I switch to the last window because its always the webview in our case, in other cases you may need to specify a window number
-# View the appium logs while running @driver.window_handles to figure out which window is the one you want and find the associated number
-# Then switch to it using @driver.switch_to_window("6")
+# I switch to the last context because its always the webview in our case, in other cases you may need to specify a context
+# View the appium logs while running @driver.contexts to figure out which context is the one you want and find the associated ID
+# Then switch to it using @driver.switch_to.context("WEBVIEW_6")
 
 Given(/^I switch to webview$/) do
 	webview = @driver.contexts.last
@@ -80,7 +80,7 @@ Given(/^I switch to webview$/) do
 end
 
 Given(/^I switch out of webview$/) do
-	@driver.switch_to(@driver.contexts.first)
+	@driver.switch_to.context(@driver.contexts.first)
 end
 
 # Now you can use CSS to select an element inside your webview
@@ -102,7 +102,7 @@ driver.switch_to.context(webview)
 driver.find_element(:css, ".green_button").click
 
 # switch back to native view
-driver.switch_to(driver.contexts.first)
+driver.switch_to.context(driver.contexts.first)
 
 # do more native testing if we want
 
@@ -185,12 +185,28 @@ it yourself:
 > sudo make install
 ```
 
+If you use a recent device, you may need to install the latest
+ideviceinstaller, this is optional:
+
+```
+brew install --HEAD ideviceinstaller
+```
+
 Once installed you can start the proxy with the following command:
 
 ``` center
 # Change the udid to be the udid of the attached device and make sure to set the port to 27753
 # as that is the port the remote-debugger uses.
 > ios_webkit_debug_proxy -c 0e4b2f612b65e98c1d07d22ee08678130d345429:27753 -d
+```
+
+You may also use the ios-webkit-debug-proxy-launcher to launch the
+proxy. It monitors the proxy log for errors, and relaunch the proxy
+where needed. This is also optional and may help with recent devices:
+
+``` center
+# change the udid
+> ./bin/ios-webkit-debug-proxy-launcher.js -c 0e4b2f612b65e98c1d07d22ee08678130d345429:27753 -d
 ```
 
 **NOTE:** the proxy requires the **"web inspector"** to be turned on to
