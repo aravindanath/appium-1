@@ -1,8 +1,7 @@
 "use strict";
 
 var path = require('path')
-  , _ = require('underscore')
-  , os = require('os');
+  , localIp = require('appium-support').util.localIp;
 
 var env = {};
 
@@ -69,6 +68,10 @@ function iphoneOrIpadSimulator(device, version) {
       return isIpad ? 'iPad 2' : 'iPhone 6';
     case '8.2':
       return isIpad ? 'iPad 2' : 'iPhone 6';
+    case '8.3':
+      return isIpad ? 'iPad 2' : 'iPhone 6';
+    case '8.4':
+      return isIpad ? 'iPad 2' : 'iPhone 6';
     default:
       throw new Error("invalid version");
   }
@@ -104,6 +107,7 @@ switch (env.DEVICE) {
     };
     break;
   case 'ios8':
+  case 'ios80':
   case 'ios8_iphone':
   case 'ios8_ipad':
     env.CAPS = {
@@ -127,6 +131,24 @@ switch (env.DEVICE) {
     env.CAPS = {
       browserName: ''
     , deviceName: iphoneOrIpadSimulator(env.DEVICE, "8.2")
+    , app: process.env.APP ? path.resolve(__dirname, "../../sample-code/apps/" + process.env.APP + "/build/Release-iphonesimulator/" + process.env.APP + ".app") : ''
+    };
+    break;
+  case 'ios83':
+  case 'ios83_iphone':
+  case 'ios83_ipad':
+    env.CAPS = {
+      browserName: ''
+    , deviceName: iphoneOrIpadSimulator(env.DEVICE, "8.3")
+    , app: process.env.APP ? path.resolve(__dirname, "../../sample-code/apps/" + process.env.APP + "/build/Release-iphonesimulator/" + process.env.APP + ".app") : ''
+    };
+    break;
+  case 'ios84':
+  case 'ios84_iphone':
+  case 'ios84_ipad':
+    env.CAPS = {
+      browserName: ''
+    , deviceName: iphoneOrIpadSimulator(env.DEVICE, "8.4")
     , app: process.env.APP ? path.resolve(__dirname, "../../sample-code/apps/" + process.env.APP + "/build/Release-iphonesimulator/" + process.env.APP + ".app") : ''
     };
     break;
@@ -164,8 +186,11 @@ env.IOS6 = env.DEVICE.match(/ios6/i);
 env.IOS7 = env.DEVICE.match(/ios7/i);
 env.IOS71 = env.DEVICE.match(/ios71/i);
 env.IOS8 = env.DEVICE.match(/ios8/i);
+env.IOS80 = env.DEVICE.match(/ios80/i);
 env.IOS81 = env.DEVICE.match(/ios81/i);
 env.IOS82 = env.DEVICE.match(/ios82/i);
+env.IOS83 = env.DEVICE.match(/ios83/i);
+env.IOS84 = env.DEVICE.match(/ios84/i);
 env.ANDROID = env.DEVICE.match(/android/i);
 env.SELENDROID = env.DEVICE.match(/selendroid/i);
 
@@ -183,6 +208,10 @@ if (env.REAL_DEVICE && env.IOS) {
   env.CAPS.udid = "auto";
 }
 
+if (process.env.UDID) {
+  env.CAPS.udid = process.env.UDID;
+}
+
 if (env.VERSION) {
   env.CAPS.platformVersion = env.VERSION;
 } else if (env.IOS6) {
@@ -195,6 +224,10 @@ if (env.VERSION) {
   env.CAPS.platformVersion = "8.1";
 } else if (env.IOS82) {
   env.CAPS.platformVersion = "8.2";
+} else if (env.IOS83) {
+  env.CAPS.platformVersion = "8.3";
+} else if (env.IOS84) {
+  env.CAPS.platformVersion = "8.4";
 } else if (env.IOS8) {
   env.CAPS.platformVersion = "8.0";
 }
@@ -217,23 +250,11 @@ if (env.SAUCE && env.TARBALL) {
   env.CAPS.tags = [env.DEVICE];
 }
 
-// rest enf points
-env.localIP = function () {
-  var ip = _.chain(os.networkInterfaces())
-    .flatten()
-    .filter(function (val) {
-      return (val.family === 'IPv4' && val.internal === false);
-    })
-    .pluck('address')
-    .first().value();
-  return ip;
-};
-
 env.LOCAL_APPIUM_PORT = env.SAUCE ? 4443 : env.APPIUM_PORT;
 env.TEST_END_POINT = 'http://localhost:' + env.LOCAL_APPIUM_PORT + '/test/';
 env.GUINEA_TEST_END_POINT = env.TEST_END_POINT + 'guinea-pig';
 if (env.REAL_DEVICE) {
-  env.CHROME_TEST_END_POINT = 'http://' + env.localIP() + ':' + env.LOCAL_APPIUM_PORT + '/test/';
+  env.CHROME_TEST_END_POINT = 'http://' + localIp() + ':' + env.LOCAL_APPIUM_PORT + '/test/';
 } else {
   env.CHROME_TEST_END_POINT = 'http://10.0.2.2:' + env.LOCAL_APPIUM_PORT + '/test/';
 }

@@ -23,28 +23,6 @@ describe("Helpers", function () {
       });
     });
 
-    describe("notNullOrUndefined ", function () {
-      it("should work as expected", function () {
-        var undef
-          , nan = NaN
-          , none = null
-          , f = function () {}
-          , o = {}
-          , n = 0
-          , s = "string"
-          , b = false;
-
-        helpers.notNullOrUndefined(undef).should.be.false;
-        helpers.notNullOrUndefined(nan).should.be.false;
-        helpers.notNullOrUndefined(none).should.be.false;
-        helpers.notNullOrUndefined(f).should.be.true;
-        helpers.notNullOrUndefined(o).should.be.true;
-        helpers.notNullOrUndefined(n).should.be.true;
-        helpers.notNullOrUndefined(s).should.be.true;
-        helpers.notNullOrUndefined(b).should.be.true;
-      });
-    });
-
     describe("with a desired capability", function () {
       it("emits the capability message", function () {
         var deprecated = "oldCap";
@@ -109,6 +87,13 @@ describe("Helpers", function () {
     it('does nothing if no dep warnings happened', function () {
       helpers.logFinalDeprecationWarning();
       logger.warn.called.should.equal(false);
+    });
+  });
+  describe('xcode version', function () {
+    it('parses xcode version with space', function () {
+      var actual = "/Applications/ Xcode 6.1.1.app/Contents/Developer";
+      var expected = "/Applications/\\ Xcode\\ 6.1.1.app/Contents/Developer";
+      helpers.escapeSpace(actual).should.equal(expected);
     });
   });
 });

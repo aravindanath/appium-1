@@ -16,9 +16,8 @@ var _ = require("underscore")
   , parseXmlString = require('xml2js').parseString
   , appiumVer = require('./package.json').version
   , fs = require('fs')
-  , helpers = require('./lib/helpers')
-  , xcode = require('./lib/devices/ios/xcode.js')
-  , isWindows = helpers.isWindows()
+  , xcode = require('./lib/future.js').xcode
+  , isWindows = require('appium-support').system.isWindows()
   , MAX_BUFFER_SIZE = 524288
   , SELENDROID_MAX_BUFFER_SIZE = 4 * MAX_BUFFER_SIZE;
 
@@ -257,9 +256,18 @@ var auth_chmodApps = function (grunt, cb) {
     if (err) return cb(err);
     var glob = path.resolve(xcodeDir, "Platforms/iPhoneSimulator.platform/" +
                             "Developer/SDKs/iPhoneSimulator*.sdk/Applications");
+    glob += " ";
+    glob += path.resolve("/Library/Developer/CoreSimulator/" +
+                         "Profiles/Runtimes/iOS\\ *.simruntime/" +
+                         "Contents/Resources/RuntimeRoot/Applications/");
     var cmd = "chown -R " + user + ": " + glob;
     exec(cmd, function (err) {
-      if (err) grunt.fatal(err);
+      if (err) {
+        grunt.log.writeln("Encountered an issue chmodding iOS sim app dirs. " +
+                          "This may be because they don't exist on your " +
+                          "system, which is not necessarily a problem. The " +
+                          "error was: " + err.message);
+      }
       cb();
     });
   });
@@ -347,7 +355,7 @@ module.exports.signApp = function (appName, certName, cb) {
 };
 
 module.exports.buildSafariLauncherApp = function (cb, sdk, xcconfig) {
-  var appRoot = path.resolve(__dirname, "submodules", "SafariLauncher");
+  var appRoot = path.resolve(require.resolve('safari-launcher'), '..');
   module.exports.build(appRoot, function (err) {
     if (err !== null) {
       console.log(err);
@@ -502,18 +510,31 @@ module.exports.fixSelendroidAndroidManifest = fixSelendroidAndroidManifest;
 
 
 module.exports.buildSelendroidServer = function (cb) {
-  console.log("Building selendroid server");
   getSelendroidVersion(function (err, version) {
     if (err) return cb(err);
+    console.log("Installing Cordova");
+    var cordovaDir = path.resolve(__dirname, "submodules", "selendroid",
+      "third-party", "cordova-3.7.0");
+    var cmd = "mvn install:install-file -Dfile=classes.jar -DgroupId=org.apache.cordova " +
+      "-DartifactId=cordova -Dversion=3.7.0 -Dclassifier=android -Dpackaging=jar";
+    exec(cmd, {cwd: cordovaDir}, function (err, stdout, stderr) {
+      if (err) {
+        console.error("Unable to install Cordova. Stdout was: ");
+        console.error(stdout);
+        console.error(stderr);
+        return cb(err);
+      }
+    });
+    console.log("Building selendroid server");
     var buildDir = path.resolve(__dirname, "submodules", "selendroid");
     var target = path.resolve(buildDir, "selendroid-server", "target",
       "selendroid-server-" + version + ".apk");
     var destDir = path.resolve(__dirname, "build", "selendroid");
     var destBin = path.resolve(destDir, "selendroid.apk");
     var srcManifest = path.resolve(__dirname, "submodules", "selendroid",
-        "selendroid-server", "AndroidManifest.xml");
+      "selendroid-server", "AndroidManifest.xml");
     var dstManifest = path.resolve(destDir, "AndroidManifest.xml");
-    var cmd = "mvn clean package -DskipTests=true";
+    cmd = "mvn clean package -DskipTests=true";
     exec(cmd, {cwd: buildDir, maxBuffer: SELENDROID_MAX_BUFFER_SIZE}, function (err, stdout, stderr) {
       if (err) {
         console.error("Unable to build selendroid server. Stdout was: ");
@@ -586,7 +607,10 @@ var getSelendroidVersion = function (cb) {
 
 module.exports.buildAndroidApp = function (grunt, appName, cb) {
   var appPath = path.resolve(__dirname, "sample-code", "apps", appName);
-  buildAndroidProj(grunt, appPath, "debug", cb);
+  buildAndroidProj(grunt, appPath, "clean", function (err) {
+    if (err) return cb(err);
+    buildAndroidProj(grunt, appPath, "debug", cb);
+  });
 };
 
 module.exports.buildSelendroidAndroidApp = function (grunt, appName, cb) {
