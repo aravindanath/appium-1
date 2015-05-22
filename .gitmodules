@@ -10,21 +10,12 @@
 [submodule "submodules/selendroid"]
 	path = submodules/selendroid
 	url = https://github.com/selendroid/selendroid.git
-[submodule "submodules/fruitstrap"]
-	path = submodules/fruitstrap
-	url = https://github.com/tborys/fruitstrap.git
 [submodule "submodules/io.appium.gappium.sampleapp"]
 	path = submodules/io.appium.gappium.sampleapp
 	url = https://github.com/appium/io.appium.gappium.sampleapp.git
-[submodule "submodules/udidetect"]
-	path = submodules/udidetect
-	url = https://github.com/vaskas/udidetect.git
 [submodule "submodules/unlock_apk"]
 	path = submodules/unlock_apk
 	url = https://github.com/appium/unlock_apk.git
-[submodule "submodules/SafariLauncher"]
-	path = submodules/SafariLauncher
-	url = https://github.com/snevesbarros/SafariLauncher.git
 [submodule "submodules/libimobiledevice-macosx"]
 	path = submodules/libimobiledevice-macosx
 	url = https://github.com/benvium/libimobiledevice-macosx.git
@@ -58,3 +49,7 @@
 [submodule "submodules/deviceconsole"]
 	path = submodules/deviceconsole
 	url = https://github.com/rpetrich/deviceconsole.git
+[submodule "submodules/appium-ci-gulper"]
+	path = submodules/appium-ci-gulper
+	url = https://github.com/appium/appium-ci-gulper.git
+	branch = master

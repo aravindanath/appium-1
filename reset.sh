@@ -66,10 +66,28 @@ do
     fi
 done
 
+run_cmd_output() {
+    if $verbose ; then
+        "$@"
+    else
+        "$@" 2> /dev/null
+    fi
+}
+
+echo "* Determining platform"
+if [ $(run_cmd_output uname -s) == "Darwin" ]; then
+    platform="mac"
+else
+    platform="linux"
+fi
+echo "* Platform is $platform"
+
 if ! $should_reset_android && ! $should_reset_ios && ! $should_reset_selendroid \
     && ! $should_reset_gappium && ! $should_reset_firefoxos && ! $should_reset_selendroid_quick ; then
     should_reset_android=true
-    should_reset_ios=true
+    if [ "$platform" == "mac" ]; then
+	should_reset_ios=true
+    fi
     should_reset_selendroid=true
     should_reset_gappium=true
     should_reset_firefoxos=true
@@ -89,14 +107,6 @@ run_cmd() {
         "$@"
     else
         "$@" >/dev/null 2>&1
-    fi
-}
-
-run_cmd_output() {
-    if $verbose ; then
-        "$@"
-    else
-        "$@" 2> /dev/null
     fi
 }
 
@@ -167,16 +177,6 @@ reset_ios() {
     set -e
     echo "* Setting iOS config to Appium's version"
     run_cmd "$grunt" setConfigVer:ios
-    echo "* Cloning/updating udidetect"
-    run_cmd git submodule update --init submodules/udidetect
-    echo "* Building udidetect"
-    run_cmd pushd submodules/udidetect
-    run_cmd make
-    run_cmd popd
-    echo "* Moving udidetect into build/udidetect"
-    run_cmd rm -rf build/udidetect
-    run_cmd mkdir build/udidetect
-    run_cmd cp -R submodules/udidetect/udidetect build/udidetect/
     if $include_dev ; then
         if $npmlink ; then
             echo "* Cloning/npm linking appium-atoms"
@@ -205,34 +205,21 @@ reset_ios() {
         echo "* Cleaning/rebuilding iOS test app: WebViewApp"
         run_cmd "$grunt" buildApp:WebViewApp:iphonesimulator$sdk_ver
     fi
-    echo "* Cloning/updating fruitstrap"
-    run_cmd git submodule update --init submodules/fruitstrap
-    echo "* Making fruitstrap"
-    run_cmd pushd "$appium_home"/submodules/fruitstrap/
-    run_cmd make fruitstrap
-    run_cmd popd
-    echo "* Copying fruitstrap to build"
-    run_cmd rm -rf build/fruitstrap
-    run_cmd mkdir -p build/fruitstrap
-    run_cmd cp submodules/fruitstrap/fruitstrap build/fruitstrap
     if $should_reset_realsafari; then
-        echo "* Cloning/updating SafariLauncher"
-        run_cmd git submodule update --init submodules/SafariLauncher
         echo "* Building SafariLauncher for real devices"
         run_cmd rm -rf build/SafariLauncher
         run_cmd mkdir -p build/SafariLauncher
-        run_cmd rm -f submodules/SafariLauncher/target.xcconfig
-        touch submodules/SafariLauncher/target.xcconfig
-        echo "BUNDLE_ID = com.bytearc.SafariLauncher" >> submodules/SafariLauncher/target.xcconfig
+        touch build/SafariLauncher/target.xcconfig
+        echo "BUNDLE_ID = com.bytearc.SafariLauncher" >> build/SafariLauncher/target.xcconfig
         if [[ ! -z $code_sign_identity ]]; then
-          echo "IDENTITY_NAME = " $code_sign_identity >> submodules/SafariLauncher/target.xcconfig
+          echo "IDENTITY_NAME = " $code_sign_identity >> build/SafariLauncher/target.xcconfig
         else
-          echo "IDENTITY_NAME = iPhone Developer" >> submodules/SafariLauncher/target.xcconfig
+          echo "IDENTITY_NAME = iPhone Developer" >> build/SafariLauncher/target.xcconfig
         fi
-        echo "IDENTITY_CODE = " $provisioning_profile >> submodules/SafariLauncher/target.xcconfig
-        run_cmd "$grunt" buildSafariLauncherApp:iphoneos:"target.xcconfig"
+        echo "IDENTITY_CODE = " $provisioning_profile >> build/SafariLauncher/target.xcconfig
+        run_cmd "$grunt" buildSafariLauncherApp:iphoneos:"$appium_home/build/SafariLauncher/target.xcconfig"
         echo "* Copying SafariLauncher for real devices to build"
-        run_cmd zip -r build/SafariLauncher/SafariLauncher submodules/SafariLauncher/build/Release-iphoneos/SafariLauncher.app
+        run_cmd zip -r build/SafariLauncher/SafariLauncher node_modules/safari-launcher/build/Release-iphoneos/SafariLauncher.app
     fi
     echo "* Cloning/updating libimobiledevice-macosx"
     run_cmd git submodule update --init submodules/libimobiledevice-macosx
@@ -482,7 +469,7 @@ reset_gappium() {
         run_cmd git submodule update --init submodules/io.appium.gappium.sampleapp
         run_cmd pushd submodules/io.appium.gappium.sampleapp
         echo "* Building Gappium test app"
-        run_cmd ./reset.sh -v
+        run_cmd ./reset.sh -v --platform $platform
         run_cmd popd
         echo "* Linking Gappium test app"
         run_cmd ln -s "$appium_home"/submodules/io.appium.gappium.sampleapp "$appium_home"/sample-code/apps/io.appium.gappium.sampleapp
@@ -509,15 +496,11 @@ reset_chromedriver() {
         chromedriver_version=$(run_cmd_output curl -L http://chromedriver.storage.googleapis.com/LATEST_RELEASE)
     fi
     if ! $chromedriver_install_all ; then
-        echo "* Determining platform"
-        platform=$(run_cmd_output uname -s)
-        if [ "$platform" == "Darwin" ]; then
-            platform="mac"
+        if [ "$platform" == "mac" ]; then
             chromedriver_file="chromedriver_mac32.zip"
             run_cmd mkdir "$appium_home"/build/chromedriver/mac
             install_chromedriver $platform $chromedriver_version $chromedriver_file
         else
-            platform="linux"
             chromedriver_file="chromedriver_linux$machine.zip"
             binary="chromedriver$machine"
             run_cmd mkdir "$appium_home"/build/chromedriver/linux
