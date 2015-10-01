@@ -5,6 +5,20 @@ CHANGES IN VERSION 1.5 (from 1.4.?)
 
 - add Tapster support for some more touch methods
 
+CHANGES IN VERSION 1.4.13 (from 1.4.12)
+===================================
+
+#### Chromedriver
+- Setting appium-chromedriver version to 2.3.2 as it is stable on Node version 0.10.32
+
+CHANGES IN VERSION 1.4.12 (from 1.4.11)
+===================================
+
+#### iOS
+- support for iOS9.1
+- fix for iOS simulator with similar device names on Xcode 7
+- fix to idevicelog (real device) to record logs only for device under test
+
 CHANGES IN VERSION 1.4.11 (from 1.4.10)
 ===================================
 
