@@ -461,9 +461,8 @@ reset_gappium() {
 }
 
 reset_chromedriver() {
+    echo "RESETTING CHROMEDRIVER"
     if $chromedriver_install_all ; then
-        echo "RESETTING CHROMEDRIVER"
-        echo "* Installing all chromedrivers, not just the ones for this system"
         run_cmd pushd node_modules/appium-chromedriver/
         run_cmd npm run-script chromedriver_all
         run_cmd popd
