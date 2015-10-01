@@ -17,85 +17,81 @@ if (env.SELENDROID) {
 var runTextEditTest = function (driver, testText, keys, done) {
     var el;
     driver
-        .waitForElementsByClassName('android.widget.EditText')
-        // use a text field with no hint text, so clear is faster
-        .then(function (els) {
-            el = _.last(els);
-            return el;
-        })
-        .clear()
-        .then(function () {
-            if (keys) {
-                return driver.keys(testText);
-            } else {
-                return el.sendKeys(testText);
-            }
-        })
-        .then(function () {
-            if (env.SELENDROID) {
-                // in Selendroid mode we sometimes get the text before
-                // it is fully sent to the element
-                return driver.sleep(300);
-            }
-        })
-        .then(function () { return el.text(); })
-        .then(function (text) {
-            // For samsung samsung S5 text is appended with ". Editing."
-            text = text.replace(". Editing.", "");
-            return text.should.be.equal(testText);
-        })
-        .nodeify(done);
-};
+      .waitForElementsByClassName('android.widget.EditText')
+      // use a text field with no hint text, so clear is faster
+      .then(function (els) {
+        el = _.last(els);
+        return el;
+      })
+      .clear()
+      .then(function () {
+        if (keys) {
+          return driver.keys(testText);
+        } else {
+          return el.sendKeys(testText);
+        }
+      })
+      .then(function () {
+        if (env.SELENDROID) {
+          // in Selendroid mode we sometimes get the text before
+          // it is fully sent to the element
+          return driver.sleep(300);
+        }
+      })
+      .then(function () { return el.text(); })
+      .then(function (text) {
+        // For samsung samsung S5 text is appended with ". Editing."
+        text = text.replace(". Editing.", "");
+        return text.should.be.equal(testText);
+      })
+      .nodeify(done);
+  };
 
-var runEditAndClearTest = function (driver, testText, keys, done) {
+  var runEditAndClearTest = function (testText, keys, done) {
     var el;
     driver
-        .waitForElementsByClassName('android.widget.EditText')
-        .then(function (els) {
-            el = _.last(els);
-            return el;
-        })
-        .clear()
-        .then(function () {
-            if (keys) {
-                return driver.keys(testText);
-            } else {
-                return el.sendKeys(testText);
-            }
-        })
-        .then(function () {
-            el.text().should.become(testText);
-        })
-        .then(function () {
-            return el.clear().should.not.be.rejected;
-        })
-        .then(function () {
-            return el.text();
-        })
-        .then(function (text) {
-            // For samsung samsung S5 text is appended with ". Editing."
-            text = text.replace("Editing.", "");
-            text.should.be.equal("");
-        })
-        .nodeify(done);
-};
+      .waitForElementsByClassName('android.widget.EditText')
+      .then(function (els) {
+        el = _.last(els);
+        return el;
+      })
+      .clear()
+      .then(function () {
+        if (keys) {
+          return driver.keys(testText);
+        } else {
+          return el.sendKeys(testText);
+        }
+      })
+      .then(function () {
+        el.text().should.become(testText);
+      })
+      .then(function () {
+        return el.clear().should.not.be.rejected;
+      })
+      .then(function () {
+        return el.text();
+      })
+      .then(function (text) {
+        // For samsung samsung S5 text is appended with ". Editing."
+        text = text.replace("Editing.", "");
+        text.should.be.equal("");
+      })
+      .nodeify(done);
+  };
 
-var runKeyboardTests = function (driverPromise, testText) {
-    var driver;
-    driverPromise.then(function (d) { driver = d; });
+  var runKeyboardTests = function (testText) {
+    return function () {
+      it('should work with sendKeys', function (done) {
+        runTextEditTest(testText, false, done);
+      });
+      it('should work with keys', function (done) {
+        runTextEditTest(testText, true, done);
+      });
+    };
+  };
 
-    it('should work with sendKeys', function (done) {
-        runTextEditTest(driver, testText, false, done);
-    });
-    it('should work with keys', function (done) {
-        runTextEditTest(driver, testText, true, done);
-    });
-};
-
-var runKeyEventTests = function (driverPromise) {
-    var driver;
-    driverPromise.then(function (d) { driver = d; });
-
+  var runKeyEventTests = function () {
     var editTextField = 'android.widget.TextView';
     if (env.SELENDROID) {
         // with Selendroid we can't find classes by their parent class
