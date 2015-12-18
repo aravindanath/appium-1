@@ -5,6 +5,28 @@ CHANGES IN VERSION 1.5 (from 1.4.?)
 
 - add Tapster support for some more touch methods
 
+CHANGES IN VERSION 1.4.16 (from 1.4.15)
+===================================
+
+#### iOS
+- fix for safari and webview issues for 9.2
+
+CHANGES IN VERSION 1.4.15 (from 1.4.14)
+===================================
+
+#### iOS
+- fix for safari and webview issues in iOS9+
+
+CHANGES IN VERSION 1.4.14 (from 1.4.13)
+===================================
+
+#### iOS
+- support for iOS9.2
+- fix for webview, resolving context issues in iOS9+
+
+#### Selendroid
+- upgrade to Selendroid 0.17.0.
+
 CHANGES IN VERSION 1.4.13 (from 1.4.12)
 ===================================
 
